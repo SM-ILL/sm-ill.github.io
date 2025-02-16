@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AES-256 Şifreleme | ToolGate</title>
+    <title>AES-256 | ToolGate</title>
     <link rel="icon" type="image/png" href="https://i.imgur.com/mVJuMCw.png">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles/styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
 <body>
     <div class="container">
         <header class="header">
             <a href="index.html" class="back-button">🏠</a>
-            <h1 class="gradient-text">AES-256 Şifreleme</h1>
+            <h1>🔐 AES-256</h1>
         </header>
 
         <div class="crypto-grid">
@@ -26,7 +26,7 @@
                 <textarea 
                     id="inputText" 
                     class="input-field textarea" 
-                    placeholder="✍️"
+                    placeholder="📝"
                 ></textarea>
             </div>
             
@@ -43,75 +43,7 @@
     </div>
 
 <script>
-const modeOptions = document.querySelectorAll('.mode-option');
-const slider = document.getElementById('slider');
-const inputField = document.getElementById('inputText');
-const keyField = document.getElementById('encryptionKey');
-const outputContainer = document.getElementById('outputContainer');
-const outputField = document.getElementById('outputText');
-let currentMode = 'encrypt';
-
-function animateOutput() {
-    outputContainer.style.opacity = '0';
-    outputContainer.style.transform = 'translateY(20px)';
-    setTimeout(() => {
-        outputContainer.style.opacity = '1';
-        outputContainer.style.transform = 'translateY(0)';
-    }, 300);
-}
-
-function updateSlider(activeOption) {
-    slider.style.width = `${activeOption.offsetWidth - 10}px`;
-    slider.style.transform = `translateX(${activeOption.offsetLeft - 5}px)`;
-}
-
-modeOptions.forEach(option => {
-    option.addEventListener('click', () => {
-        modeOptions.forEach(o => o.classList.remove('active'));
-        option.classList.add('active');
-        currentMode = option.dataset.mode;
-        updateSlider(option);
-        processText();
-    });
-});
-
-[keyField, inputField].forEach(field => {
-    field.addEventListener('input', () => {
-        processText();
-        if(inputField.value.length > 0) animateOutput();
-    });
-});
-
-function processText() {
-    const key = keyField.value;
-    const text = inputField.value;
-
-    if (!key || !text) {
-        outputField.textContent = '🔄';
-        return;
-    }
-
-    try {
-        let result;
-        if (currentMode === 'encrypt') {
-            result = CryptoJS.AES.encrypt(text, key).toString();
-            outputField.style.borderColor = '#00ff8833';
-            outputField.textContent = '✅🔐';
-        } else {
-            const bytes = CryptoJS.AES.decrypt(text, key);
-            const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-            result = decrypted ? '✅🔓' : '❌🔑';
-            outputField.style.borderColor = decrypted ? '#00ff8833' : '#ff555533';
-        }
-        outputField.textContent = result;
-        outputField.style.color = result.includes('❌') ? '#ff5555' : '#00ff88';
-    } catch (error) {
-        outputField.textContent = '⚠️🔥';
-        outputField.style.color = '#ff5555';
-    }
-}
-
-updateSlider(document.querySelector('.active'));
+const modeOptions=document.querySelectorAll('.mode-option'),slider=document.getElementById('slider'),inputField=document.getElementById('inputText'),keyField=document.getElementById('encryptionKey'),outputContainer=document.getElementById('outputContainer'),outputField=document.getElementById('outputText');let currentMode='encrypt';function animateOutput(){outputContainer.style.opacity='0',outputContainer.style.transform='translateY(20px)',setTimeout(()=>{outputContainer.style.opacity='1',outputContainer.style.transform='translateY(0)'},300)}function updateSlider(e){slider.style.width=`${e.offsetWidth-10}px`,slider.style.transform=`translateX(${e.offsetLeft-5}px)`}modeOptions.forEach(e=>{e.addEventListener('click',()=>{modeOptions.forEach(t=>t.classList.remove('active')),e.classList.add('active'),currentMode=e.dataset.mode,updateSlider(e),processText()})}),[keyField,inputField].forEach(e=>{e.addEventListener('input',()=>{processText(),inputField.value.length>0&&animateOutput()})});function processText(){const e=keyField.value,t=inputField.value;if(!e||!t)return outputField.textContent='🔄',void(outputField.style.color='#00ff88');try{let a;if('encrypt'===currentMode)a=CryptoJS.AES.encrypt(t,e).toString(),outputField.style.borderColor='#00ff8833',outputField.textContent='✅🔐';else{const r=CryptoJS.AES.decrypt(t,e),l=r.toString(CryptoJS.enc.Utf8);a=l?'✅📜':'❌🔑',outputField.style.borderColor=l?'#00ff8833':'#ff555533'}outputField.textContent=a,outputField.style.color=a.includes('❌')?'#ff5555':'#00ff88'}catch(e){outputField.textContent='⚠️🔥',outputField.style.color='#ff5555'}}updateSlider(document.querySelector('.active'));
 </script>
 </body>
 </html>
