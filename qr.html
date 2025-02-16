@@ -8,28 +8,23 @@
     <link rel="stylesheet" href="styles/styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
-<body>
+<body class="green-bg">
     <div class="container">
         <header class="header">
-            <a href="index.html" class="back-button">🏠</a>
-            <h1>🔳 QR Oluşturucu</h1>
+            <a href="index.html" class="back-button"></a>
+            <h1>QR Oluşturucu</h1>
         </header>
 
         <div class="tool-content">
-            <input 
-                type="text" 
-                id="qrInput" 
-                class="input-field" 
-                placeholder="🔗 Link/Metin"
-            >
+            <input type="text" id="qrInput" class="input-field" placeholder="Link veya metin girin">
             
             <div class="color-switch">
-                <div class="color-option active" data-color="#00ff88">🌿</div>
-                <div class="color-option" data-color="#ffffff">⚪</div>
+                <div class="color-option active" data-color="#00ff88"></div>
+                <div class="color-option" data-color="#ffffff"></div>
             </div>
 
-            <div id="qrcode" class="qr-output"></div>
-            <button onclick="downloadQR()" class="download-button" hidden>📥 İndir</button>
+            <div id="qrcode"></div>
+            <button id="downloadBtn" class="primary-btn">İndir</button>
         </div>
     </div>
 
@@ -38,27 +33,10 @@ let qr = null;
 let selectedColor = '#00ff88';
 
 document.getElementById('qrInput').addEventListener('input', () => {
-    setTimeout(generateQR, 1);
-});
-
-document.querySelectorAll('.color-option').forEach(option => {
-    option.addEventListener('click', () => {
-        document.querySelectorAll('.color-option').forEach(o => o.classList.remove('active'));
-        option.classList.add('active');
-        selectedColor = option.dataset.color;
-        generateQR();
-    });
-});
-
-function generateQR() {
-    const text = document.getElementById('qrInput').value;
-    if(!text) {
-        document.getElementById('qrcode').innerHTML = '';
-        document.querySelector('.download-button').hidden = true;
-        return;
-    }
-    
     if(qr) qr.clear();
+    const text = document.getElementById('qrInput').value;
+    if(!text) return;
+    
     qr = new QRCode(document.getElementById('qrcode'), {
         text: text,
         width: 200,
@@ -66,16 +44,24 @@ function generateQR() {
         colorDark: selectedColor,
         colorLight: 'transparent'
     });
-    document.querySelector('.download-button').hidden = false;
-}
+});
 
-function downloadQR() {
+document.querySelectorAll('.color-option').forEach(option => {
+    option.addEventListener('click', () => {
+        document.querySelectorAll('.color-option').forEach(o => o.classList.remove('active'));
+        option.classList.add('active');
+        selectedColor = option.dataset.color;
+        if(qr) qr._htOption.colorDark = selectedColor;
+    });
+});
+
+document.getElementById('downloadBtn').addEventListener('click', () => {
     const canvas = document.querySelector('#qrcode canvas');
     const link = document.createElement('a');
     link.download = 'qrcode.png';
     link.href = canvas.toDataURL();
     link.click();
-}
+});
 </script>
 </body>
 </html>
