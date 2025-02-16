@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PNG→JPEG | ToolGate</title>
+    <link rel="icon" type="image/png" href="https://i.imgur.com/mVJuMCw.png">
+    <link rel="stylesheet" href="styles/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <a href="index.html" class="back-button">🏠</a>
+            <h1>🖼️ PNG→JPEG</h1>
+        </header>
+
+        <div class="tool-content">
+            <input 
+                type="file" 
+                id="fileInput" 
+                accept="image/png" 
+                class="input-field"
+            >
+            <div class="preview-box" id="preview"></div>
+            <button onclick="convert()" class="action-button">🔄 Dönüştür</button>
+            <a id="downloadLink" hidden class="download-button">📥 İndir</a>
+        </div>
+    </div>
+
+<script>
+function convert() {
+    const file = document.getElementById('fileInput').files[0];
+    if(!file) return alert("❌ Dosya seçin!");
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            
+            const link = document.getElementById('downloadLink');
+            link.href = canvas.toDataURL('image/jpeg', 0.9);
+            link.download = file.name.replace('.png', '.jpg');
+            link.hidden = false;
+        }
+        img.src = e.target.result;
+        document.getElementById('preview').innerHTML = '';
+        document.getElementById('preview').appendChild(img);
+    }
+    reader.readAsDataURL(file);
+}
+</script>
+</body>
+</html>
