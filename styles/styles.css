@@ -6,6 +6,10 @@
     font-family: 'Inter', sans-serif;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     background: #0a0a0a;
     color: #ffffff;
@@ -14,223 +18,226 @@ body {
     overflow-x: hidden;
 }
 
+/* ADBLOCK KONTROLÜ */
+.ad-check {
+    display: none !important;
+}
+
+.adblock-error {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    padding: 3rem;
+    background: #1a1a1a;
+    border: 2px solid #ff5555;
+    border-radius: 20px;
+    max-width: 600px;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+.adblock-error h2 {
+    color: #ff5555;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.adblock-error p {
+    color: #ffffff;
+    margin-bottom: 1.5rem;
+}
+
+.adblock-error button {
+    background: #ff5555;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.adblock-error button:hover {
+    background: #ff3333;
+    transform: scale(1.05);
+}
+
 /* ANA KAPLAMA */
 .container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 2rem;
 }
 
-/* HEADER VE LOGO */
+/* LOGO VE BAŞLIK */
 .header {
     text-align: center;
-    margin-bottom: 4rem;
+    margin-bottom: 5rem;
     position: relative;
+    padding-top: 4rem;
 }
 
 .logo-effect {
-    background: linear-gradient(45deg, #00ff88, #00ffe5);
+    background: linear-gradient(45deg, #00ff88 20%, #00ffe5 80%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    font-size: 4rem; /* Büyütüldü */
-    font-weight: 800;
-    letter-spacing: -2px;
-    margin-bottom: 1rem;
-    text-shadow: 0 0 20px rgba(0,255,136,0.2);
+    font-size: 5rem;
+    font-weight: 900;
+    letter-spacing: -3px;
+    display: inline-block;
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform-style: preserve-3d;
+    text-shadow: 0 0 30px rgba(0,255,136,0.3);
 }
 
-/* GERİ BUTONU */
-.back-button {
-    position: fixed;
-    left: 2rem;
-    top: 2rem;
-    color: #00ff88;
-    text-decoration: none;
-    font-size: 2.5rem;
-    font-weight: 700;
-    transition: all 0.3s;
-    z-index: 100;
-}
-
-.back-button:hover {
-    transform: scale(1.1);
-    opacity: 0.8;
+.subtitle {
+    color: rgba(255,255,255,0.6);
+    font-size: 1.2rem;
+    margin-top: 1rem;
 }
 
 /* TOOL KARTLARI */
 .tools-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    max-width: 1000px;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2.5rem;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
 .tool-card {
     background: rgba(255,255,255,0.03);
     border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 16px;
-    padding: 2rem;
+    border-radius: 20px;
+    padding: 2.5rem;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform-style: preserve-3d;
     position: relative;
     overflow: hidden;
-}
-
-.tool-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0,255,136,0.1);
+    backdrop-filter: blur(12px);
 }
 
 .tool-card::before {
     content: '';
     position: absolute;
     top: 0;
-    left: -100%;
-    width: 100%;
+    left: -150%;
+    width: 50%;
     height: 100%;
     background: linear-gradient(
         90deg,
         transparent,
-        rgba(255,255,255,0.05),
+        rgba(255,255,255,0.08),
         transparent
     );
-    transition: 0.5s;
+    transition: 0.8s;
 }
 
 .tool-card:hover::before {
-    left: 100%;
+    left: 150%;
 }
 
-/* FORM ELEMENTLERİ */
-.input-field {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    padding: 1rem;
-    width: 100%;
-    margin-bottom: 1.5rem;
-    color: #fff;
-    font-size: 1rem;
-    transition: all 0.3s;
+.tool-card h3 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: #00ff88;
 }
 
-.input-field:focus {
-    border-color: #00ff88;
-    box-shadow: 0 0 15px rgba(0,255,136,0.2);
-    outline: none;
+.tool-card p {
+    color: rgba(255,255,255,0.7);
+    line-height: 1.8;
 }
 
-/* QR OLUŞTURUCU */
-.qr-wrapper {
-    max-width: 500px;
-    margin: 2rem auto;
-    position: relative;
+/* PARALLAX ARKAPLAN */
+.dynamic-bg {
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 50% 50%, 
+        rgba(20, 200, 240, 0.25) 0%,
+        rgba(20, 200, 240, 0) 70%);
+    pointer-events: none;
+    transition: transform 0.6s linear;
+    z-index: -1;
 }
 
-#qrcode {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 300px;
-    background: rgba(255,255,255,0.03);
-    border-radius: 16px;
-    margin: 2rem 0;
+/* ANİMASYONLAR */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
 }
 
-.controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 1rem;
+@keyframes glow {
+    0% { filter: brightness(1) contrast(1); }
+    100% { filter: brightness(1.2) contrast(1.2); }
 }
 
-.color-switch {
-    display: flex;
-    gap: 1rem;
-}
-
-.color-option {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    cursor: pointer;
-    border: 2px solid transparent;
-    transition: all 0.3s;
-}
-
-.color-option[data-color="#00ff88"] { background: #00ff88; }
-.color-option[data-color="#ffffff"] { background: #ffffff; }
-
-.color-option.active {
-    border-color: #00ff88;
-    transform: scale(1.1);
-}
-
-/* İNDİR BUTONU */
-.primary-btn {
-    background: #00ff88;
-    color: #000;
-    border: none;
-    padding: 0.8rem 2rem;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.primary-btn:hover {
-    opacity: 0.9;
-    box-shadow: 0 0 20px rgba(0,255,136,0.3);
-}
-
-/* PNG→JPEG */
-.image-preview {
-    max-width: 600px;
-    margin: 2rem auto;
-    position: relative;
-}
-
-#previewCanvas {
-    max-width: 100%;
-    max-height: 70vh;
-    display: block;
-    margin: 0 auto;
-    border-radius: 12px;
-    box-shadow: 0 0 30px rgba(0,255,136,0.1);
-}
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
+/* RESPONSIVE TASARIM */
+@media (max-width: 1200px) {
     .container {
-        padding: 1rem;
+        padding: 1.5rem;
     }
     
     .logo-effect {
-        font-size: 3rem;
+        font-size: 4rem;
     }
-    
-    .back-button {
-        left: 1rem;
-        top: 1rem;
-        font-size: 2rem;
+}
+
+@media (max-width: 768px) {
+    .logo-effect {
+        font-size: 3.5rem;
+        letter-spacing: -2px;
     }
     
     .tools-grid {
         grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .tool-card {
+        padding: 2rem;
     }
 }
 
 @media (max-width: 480px) {
     .logo-effect {
-        font-size: 2.5rem;
+        font-size: 2.8rem;
     }
     
-    .primary-btn {
-        width: 100%;
+    .tool-card h3 {
+        font-size: 1.6rem;
     }
     
-    .color-switch {
-        gap: 0.5rem;
+    .adblock-error {
+        width: 90%;
+        padding: 1.5rem;
     }
+}
+
+/* ÖZEL HOVER ETKİLERİ */
+.tool-card:hover {
+    transform: perspective(1000px) rotateX(5deg) rotateY(5deg) scale(1.03);
+    box-shadow: 0 25px 50px rgba(0,255,136,0.1);
+}
+
+.logo-effect:hover {
+    animation: float 3s ease-in-out infinite, glow 2s alternate infinite;
+}
+
+/* GÜVENLİK OVERLAY */
+.security-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 9999;
+    display: none;
 }

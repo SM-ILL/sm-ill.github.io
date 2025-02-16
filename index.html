@@ -8,74 +8,113 @@
     <link rel="stylesheet" href="styles/styles.css">
 </head>
 <body class="text-white">
-    <div class="ad-check" id="adCheck">ad</div>
+    <div class="ad-check" id="adCheck"></div> <!-- Görünmez reklam kontrolü -->
     <div class="dynamic-bg" id="dynamicBg"></div>
 
     <div class="container">
         <header class="header">
-            <h1 class="logo-effect" id="mainLogo">ToolGate</h1>
-            <p class="subtitle">Creative Tools</p>
+            <h1 class="logo-effect" id="mainLogo">TOOLGATE</h1>
+            <p class="subtitle">Creative Solutions</p>
         </header>
 
         <div class="tools-grid">
             <div class="tool-card" onclick="window.location.href='pngtojpg.html'">
                 <h3>PNG → JPEG</h3>
-                <p>Yüksek kalitede görsel dönüşümü</p>
+                <p>Profesyonel Görsel Dönüşüm</p>
             </div>
 
             <div class="tool-card" onclick="window.location.href='aes-256.html'">
                 <h3>Metin Şifreleme</h3>
-                <p>Güvenli AES-256 şifreleme</p>
+                <p>AES-256 Güvenliği</p>
             </div>
 
             <div class="tool-card" onclick="window.location.href='qr.html'">
                 <h3>QR Oluşturucu</h3>
-                <p>Dinamik QR kodları yaratın</p>
+                <p>Dinamik Kod Üretimi</p>
             </div>
         </div>
     </div>
 
 <script>
-// AdBlock Kontrolü
-if(document.getElementById('adCheck').offsetHeight === 0) {
-    document.body.innerHTML = `<div class="error-message">Lütfen AdBlock'u devre dışı bırakın!</div>`;
-    throw new Error("AdBlock detected");
-}
+// Gelişmiş AdBlock Tespiti
+const adElements = [
+    document.getElementById('adCheck'),
+    ...document.getElementsByClassName('ad-placeholder')
+];
+
+setInterval(() => {
+    if(adElements.some(el => getComputedStyle(el).display === 'none')) {
+        document.body.innerHTML = `
+            <div class="adblock-error">
+                <h2>⚠️ ERİŞİM ENGELLENDİ</h2>
+                <p>Lütfen reklam engelleyiciyi devre dışı bırakın</p>
+                <button onclick="location.reload()">Tekrar Dene</button>
+            </div>
+        `;
+        throw new Error("AdBlock detected");
+    }
+}, 1000);
 
 // Logo Animasyonu
-document.getElementById('mainLogo').addEventListener('mousemove', (e) => {
-    const logo = e.target;
+const logo = document.getElementById('mainLogo');
+let animationFrame;
+
+logo.addEventListener('mousemove', (e) => {
+    cancelAnimationFrame(animationFrame);
     const rect = logo.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
-    logo.style.transform = `perspective(1000px) rotateX(${y*10}deg) rotateY(${x*10}deg) scale(1.05)`;
+    
+    logo.style.transform = `
+        perspective(1000px) 
+        rotateX(${y*20}deg) 
+        rotateY(${x*20}deg)
+    `;
 });
 
-document.getElementById('mainLogo').addEventListener('mouseleave', () => {
-    document.getElementById('mainLogo').style.transform = 'none';
+logo.addEventListener('mouseleave', () => {
+    animationFrame = requestAnimationFrame(() => {
+        logo.style.transform = 'none';
+    });
 });
 
-// Kart Parallax Efekti
+// Gelişmiş Kart Parallax
 document.querySelectorAll('.tool-card').forEach(card => {
+    let timeout;
+
     card.addEventListener('mousemove', (e) => {
+        clearTimeout(timeout);
         const rect = card.getBoundingClientRect();
         const x = (e.clientX - rect.left) / rect.width - 0.5;
         const y = (e.clientY - rect.top) / rect.height - 0.5;
-        card.style.transform = `perspective(1000px) rotateX(${y*5}deg) rotateY(${x*5}deg) scale(1.03)`;
+        
+        card.style.transform = `
+            perspective(1000px) 
+            rotateX(${y*15}deg) 
+            rotateY(${x*15}deg) 
+            scale(1.05)
+        `;
     });
 
     card.addEventListener('mouseleave', () => {
-        card.style.transform = 'none';
+        timeout = setTimeout(() => {
+            card.style.transform = 'none';
+        }, 1000);
     });
 });
 
 // Arkaplan Hareketi
 document.addEventListener('mousemove', (e) => {
     const bg = document.getElementById('dynamicBg');
-    bg.style.transform = `translate(${e.clientX/20}px, ${e.clientY/20}px)`;
+    bg.style.transform = `
+        translate(
+            ${(e.clientX/window.innerWidth)*30}px,
+            ${(e.clientY/window.innerHeight)*30}px
+        )
+    `;
 });
 
-// Gelişmiş Güvenlik
+// Güvenlik Önlemleri
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('keydown', e => {
     if(e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','C'].includes(e.key))) {
@@ -85,10 +124,10 @@ document.addEventListener('keydown', e => {
 });
 
 // Konami Kodu
-let konamiCode = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight'];
+const konamiCode = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight'];
 let konamiIndex = 0;
 document.addEventListener('keydown', (e) => {
-    konamiCode[konamiIndex] === e.key ? konamiIndex++ : konamiIndex = 0;
+    konamiIndex = konamiCode[konamiIndex] === e.key ? konamiIndex + 1 : 0;
     if(konamiIndex === konamiCode.length) window.location.href = '/sectabslistsshsml';
 });
 </script>
