@@ -22,15 +22,16 @@
                 class="input-field"
             >
             <div class="preview-box" id="preview"></div>
-            <button onclick="convert()" class="action-button">🔄 Dönüştür</button>
             <a id="downloadLink" hidden class="download-button">📥 İndir</a>
         </div>
     </div>
 
 <script>
+document.getElementById('fileInput').addEventListener('change', convert);
+
 function convert() {
     const file = document.getElementById('fileInput').files[0];
-    if(!file) return alert("❌ Dosya seçin!");
+    if(!file) return;
     
     const reader = new FileReader();
     reader.onload = function(e) {
