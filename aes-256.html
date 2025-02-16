@@ -1,1 +1,52 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AES-256 Şifreleme | ToolGate</title>
+    <link rel="icon" type="image/png" href="https://i.imgur.com/mVJuMCw.png">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="gradient-text">AES-256 Şifreleme</h1>
+        </header>
 
+        <!-- Mod Seçici -->
+        <div class="mode-switch">
+            <div class="mode-option active" data-mode="encrypt">Şifrele</div>
+            <div class="mode-option" data-mode="decrypt">Çöz</div>
+            <div class="slider-track"></div>
+        </div>
+
+        <!-- İçerik -->
+        <div class="content">
+            <input 
+                type="password" 
+                id="encryptionKey" 
+                class="input-field" 
+                placeholder="Şifreleme Anahtarı"
+            >
+
+            <div class="input-group">
+                <textarea 
+                    id="inputText" 
+                    class="input-field textarea" 
+                    placeholder="Metin girin..."
+                ></textarea>
+                <div class="char-count">0</div>
+            </div>
+
+            <div class="output-field" id="outputText"></div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript kodu önceki mesajdaki ile aynı kalacak
+        // (Animasyon ve şifreleme/çözme fonksiyonları)
+    </script>
+</body>
+</html>
