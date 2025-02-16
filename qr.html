@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Oluşturucu | ToolGate</title>
+    <link rel="icon" type="image/png" href="https://i.imgur.com/mVJuMCw.png">
+    <link rel="stylesheet" href="styles/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <a href="index.html" class="back-button">🏠</a>
+            <h1>🔳 QR Oluşturucu</h1>
+        </header>
+
+        <div class="tool-content">
+            <input 
+                type="text" 
+                id="qrInput" 
+                class="input-field" 
+                placeholder="🔗 Link/Metin"
+            >
+            <button onclick="generateQR()" class="action-button">⚡ Oluştur</button>
+            <div id="qrcode" class="qr-output"></div>
+            <button onclick="downloadQR()" class="download-button" hidden>📥 İndir</button>
+        </div>
+    </div>
+
+<script>
+let qr = null;
+
+function generateQR() {
+    const text = document.getElementById('qrInput').value;
+    if(!text) return alert("❌ Metin girin!");
+    
+    if(qr) qr.clear();
+    document.getElementById('qrcode').innerHTML = '';
+    document.querySelector('.download-button').hidden = false;
+
+    qr = new QRCode(document.getElementById('qrcode'), {
+        text: text,
+        width: 200,
+        height: 200,
+        colorDark: '#00ff88',
+        colorLight: 'transparent'
+    });
+}
+
+function downloadQR() {
+    const canvas = document.querySelector('#qrcode canvas');
+    const link = document.createElement('a');
+    link.download = 'qrcode.png';
+    link.href = canvas.toDataURL();
+    link.click();
+}
+</script>
+</body>
+</html>
