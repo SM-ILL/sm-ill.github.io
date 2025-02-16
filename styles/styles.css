@@ -1,1 +1,67 @@
+/* Ana Temayla Uyumlu Stiller */
+.crypto-grid {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
 
+.input-group {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.back-button {
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid #00ff8833;
+    border-radius: 8px;
+    padding: 10px;
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    background: rgba(0, 255, 136, 0.2);
+}
+
+.output-container {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    margin-top: 2rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.output-container.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.output-field {
+    border: 1px solid transparent;
+    padding: 1.5rem;
+    transition: border-color 0.3s ease;
+}
+
+/* Animasyonlar */
+@keyframes slideUp {
+    from { 
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .crypto-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .mode-switch {
+        order: -1;
+        margin-bottom: 2rem;
+    }
+}
