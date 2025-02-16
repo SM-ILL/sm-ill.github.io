@@ -8,58 +8,56 @@
     <link rel="stylesheet" href="styles/styles.css">
 </head>
 <body class="green-bg">
+    <a href="index.html" class="back-button">&lt;</a>
+    
     <div class="container">
         <header class="header">
-            <a href="index.html" class="back-button">← Ana Sayfa</a>
-            <h1>🖼️ PNG→JPEG</h1>
+            <h1>PNG→JPEG Dönüştürücü</h1>
         </header>
 
-        <div class="tool-content center-items">
+        <div class="tool-content">
             <input type="file" id="fileInput" accept="image/png" class="input-field">
+            
             <div class="image-preview">
                 <canvas id="previewCanvas"></canvas>
+                <button id="downloadBtn" class="primary-btn" hidden>İndir</button>
             </div>
-            <button id="downloadBtn" class="primary-btn">📥 İndir</button>
         </div>
     </div>
 
 <script>
-let originalWidth, originalHeight;
+let originalImage = null;
 
 document.getElementById('fileInput').addEventListener('change', function(e) {
     const file = e.target.files[0];
     const reader = new FileReader();
     
     reader.onload = function(event) {
-        const img = new Image();
-        img.onload = function() {
+        originalImage = new Image();
+        originalImage.onload = function() {
             const canvas = document.getElementById('previewCanvas');
             const ctx = canvas.getContext('2d');
             
-            // Orijinal boyutları sakla
-            originalWidth = img.width;
-            originalHeight = img.height;
+            // Önizleme boyutlandırma
+            const maxSize = 500;
+            const ratio = Math.min(maxSize/originalImage.width, maxSize/originalImage.height);
+            canvas.width = originalImage.width * ratio;
+            canvas.height = originalImage.height * ratio;
             
-            // Önizleme boyutlarını ayarla (maks. 500x500)
-            const scale = Math.min(500/img.width, 500/img.height);
-            canvas.width = img.width * scale;
-            canvas.height = img.height * scale;
-            
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
+            document.getElementById('downloadBtn').hidden = false;
         };
-        img.src = event.target.result;
+        originalImage.src = event.target.result;
     };
     reader.readAsDataURL(file);
 });
 
 document.getElementById('downloadBtn').addEventListener('click', function() {
     const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = originalImage.width;
+    tempCanvas.height = originalImage.height;
     const tempCtx = tempCanvas.getContext('2d');
-    
-    tempCanvas.width = originalWidth;
-    tempCanvas.height = originalHeight;
-    tempCtx.drawImage(document.getElementById('previewCanvas'), 
-        0, 0, tempCanvas.width, tempCanvas.height);
+    tempCtx.drawImage(originalImage, 0, 0);
     
     const link = document.createElement('a');
     link.download = 'converted.jpg';

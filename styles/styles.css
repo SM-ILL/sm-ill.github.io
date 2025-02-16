@@ -1,67 +1,94 @@
-/* Ortak Stiller */
-.center-items {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-}
-
+/* Ana Sayfa Buton Stili */
 .back-button {
     position: absolute;
-    left: 2rem;
-    top: 2rem;
-    color: #00ff88;
+    left: 1rem;
+    top: 1rem;
+    color: #00ff88 !important;
     text-decoration: none;
-    font-weight: 600;
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 0.5rem;
+    transition: opacity 0.3s;
 }
 
-/* PNG→JPEG Özel */
-.image-preview {
-    max-width: 500px;
-    max-height: 500px;
-    border: 2px dashed #00ff8833;
-    border-radius: 12px;
-    padding: 10px;
+.back-button:hover {
+    opacity: 0.8;
 }
 
-#previewCanvas {
-    max-width: 100%;
-    max-height: 100%;
-    display: block;
-}
-
-/* QR Özel */
+/* QR Container */
 .qr-container {
-    width: 200px;
-    height: 200px;
+    width: 100%;
+    max-width: 300px;
+    margin: 2rem auto;
+    position: relative;
+}
+
+#qrcode {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: rgba(255,255,255,0.05);
-    border-radius: 12px;
-    padding: 15px;
+    min-height: 300px;
+}
+
+#qrcode canvas {
+    transition: opacity 0.3s;
+}
+
+/* Renk Seçici */
+.color-switch {
+    position: absolute;
+    left: 1rem;
+    bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.color-option {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.color-option.active {
+    border-color: #00ff88;
+}
+
+/* İndir Butonu */
+.download-btn-container {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
 }
 
 .primary-btn {
     background: #00ff88;
     color: #000;
     border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 600;
+    padding: 0.5rem 1.5rem;
+    border-radius: 6px;
     cursor: pointer;
-    transition: transform 0.2s;
-    width: fit-content;
+    font-weight: 600;
+    transition: all 0.3s;
 }
 
 .primary-btn:hover {
-    transform: scale(0.95);
-    box-shadow: 0 0 15px #00ff8833;
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(0,255,136,0.3);
 }
 
-@media (max-width: 768px) {
-    .back-button {
-        position: static;
-        margin-bottom: 1rem;
-    }
+/* PNG→JPEG Özel */
+.image-preview {
+    max-width: 500px;
+    max-height: 500px;
+    margin: 2rem auto;
+    position: relative;
+}
+
+#previewCanvas {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    margin: 0 auto;
 }
