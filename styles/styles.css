@@ -1,31 +1,67 @@
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
-body{background:#0a0a0a;color:#fff;min-height:100vh;line-height:1.6}
-body.green-bg{background:linear-gradient(45deg,#0a1a0a,#0a0a1a)}
+/* Ortak Stiller */
+.center-items {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
 
-.container{max-width:1200px;margin:0 auto;padding:2rem}
-.header{text-align:center;margin-bottom:3rem;padding:1rem 0}
-.logo-effect{background:linear-gradient(45deg,#00ff88,#00ffe5);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.back-button {
+    position: absolute;
+    left: 2rem;
+    top: 2rem;
+    color: #00ff88;
+    text-decoration: none;
+    font-weight: 600;
+}
 
-.tools-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:2rem;max-width:1000px;margin:0 auto}
-.tool-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:2rem;cursor:pointer;transition:all 0.3s}
-.tool-card:hover{transform:translateY(-5px);box-shadow:0 10px 30px rgba(0,255,136,0.1)}
+/* PNG→JPEG Özel */
+.image-preview {
+    max-width: 500px;
+    max-height: 500px;
+    border: 2px dashed #00ff8833;
+    border-radius: 12px;
+    padding: 10px;
+}
 
-.input-field{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:1rem;width:100%;margin-bottom:1rem;color:#fff}
-.textarea{height:150px;resize:vertical}
+#previewCanvas {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+}
 
-.switch-container{display:flex;gap:1rem;margin:1rem 0}
-.switch-option{padding:0.5rem 1.5rem;border-radius:50px;cursor:pointer;background:rgba(255,255,255,0.1)}
-.switch-option.active{background:#00ff88;color:#000}
+/* QR Özel */
+.qr-container {
+    width: 200px;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 15px;
+}
 
-.primary-btn{background:#00ff88;color:#000;border:none;padding:1rem 2rem;border-radius:8px;cursor:pointer;font-weight:600;transition:transform 0.2s}
-.primary-btn:hover{transform:scale(0.98)}
+.primary-btn {
+    background: #00ff88;
+    color: #000;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+    width: fit-content;
+}
 
-#qrcode{margin:2rem auto;text-align:center}
-#previewCanvas{max-width:100%;border:2px solid #00ff8833;border-radius:8px;margin:1rem auto}
+.primary-btn:hover {
+    transform: scale(0.95);
+    box-shadow: 0 0 15px #00ff8833;
+}
 
-.dynamic-bg{position:fixed;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 50% 50%,rgba(20,200,240,0.1) 0%,rgba(20,200,240,0) 70%);pointer-events:none;z-index:-1}
-
-@media (max-width:768px){
-    .container{padding:1rem}
-    .tools-grid{grid-template-columns:1fr}
+@media (max-width: 768px) {
+    .back-button {
+        position: static;
+        margin-bottom: 1rem;
+    }
 }

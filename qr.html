@@ -11,52 +11,40 @@
 <body class="green-bg">
     <div class="container">
         <header class="header">
-            <a href="index.html" class="back-button"></a>
-            <h1>QR Oluşturucu</h1>
+            <a href="index.html" class="back-button">← Ana Sayfa</a>
+            <h1>🔲 QR Oluşturucu</h1>
         </header>
 
-        <div class="tool-content">
+        <div class="tool-content center-items">
             <input type="text" id="qrInput" class="input-field" placeholder="Link veya metin girin">
             
-            <div class="color-switch">
-                <div class="color-option active" data-color="#00ff88"></div>
-                <div class="color-option" data-color="#ffffff"></div>
-            </div>
-
-            <div id="qrcode"></div>
-            <button id="downloadBtn" class="primary-btn">İndir</button>
+            <div class="qr-container" id="qrcode"></div>
+            <button id="downloadBtn" class="primary-btn">📥 İndir</button>
         </div>
     </div>
 
 <script>
 let qr = null;
-let selectedColor = '#00ff88';
 
-document.getElementById('qrInput').addEventListener('input', () => {
+document.getElementById('qrInput').addEventListener('input', function() {
     if(qr) qr.clear();
-    const text = document.getElementById('qrInput').value;
+    const text = this.value;
     if(!text) return;
-    
+
     qr = new QRCode(document.getElementById('qrcode'), {
         text: text,
         width: 200,
         height: 200,
-        colorDark: selectedColor,
-        colorLight: 'transparent'
+        colorDark: "#00ff88",
+        colorLight: "transparent",
+        correctLevel: QRCode.CorrectLevel.H
     });
 });
 
-document.querySelectorAll('.color-option').forEach(option => {
-    option.addEventListener('click', () => {
-        document.querySelectorAll('.color-option').forEach(o => o.classList.remove('active'));
-        option.classList.add('active');
-        selectedColor = option.dataset.color;
-        if(qr) qr._htOption.colorDark = selectedColor;
-    });
-});
-
-document.getElementById('downloadBtn').addEventListener('click', () => {
+document.getElementById('downloadBtn').addEventListener('click', function() {
     const canvas = document.querySelector('#qrcode canvas');
+    if(!canvas) return alert("❌ Önce QR oluşturun!");
+    
     const link = document.createElement('a');
     link.download = 'qrcode.png';
     link.href = canvas.toDataURL();

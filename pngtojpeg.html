@@ -10,18 +10,22 @@
 <body class="green-bg">
     <div class="container">
         <header class="header">
-            <a href="index.html" class="back-button"></a>
-            <h1>PNG→JPEG Dönüştürücü</h1>
+            <a href="index.html" class="back-button">← Ana Sayfa</a>
+            <h1>🖼️ PNG→JPEG</h1>
         </header>
 
-        <div class="tool-content">
+        <div class="tool-content center-items">
             <input type="file" id="fileInput" accept="image/png" class="input-field">
-            <canvas id="previewCanvas"></canvas>
-            <button id="downloadBtn" class="primary-btn">İndir</button>
+            <div class="image-preview">
+                <canvas id="previewCanvas"></canvas>
+            </div>
+            <button id="downloadBtn" class="primary-btn">📥 İndir</button>
         </div>
     </div>
 
 <script>
+let originalWidth, originalHeight;
+
 document.getElementById('fileInput').addEventListener('change', function(e) {
     const file = e.target.files[0];
     const reader = new FileReader();
@@ -30,10 +34,18 @@ document.getElementById('fileInput').addEventListener('change', function(e) {
         const img = new Image();
         img.onload = function() {
             const canvas = document.getElementById('previewCanvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
             const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
+            
+            // Orijinal boyutları sakla
+            originalWidth = img.width;
+            originalHeight = img.height;
+            
+            // Önizleme boyutlarını ayarla (maks. 500x500)
+            const scale = Math.min(500/img.width, 500/img.height);
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         };
         img.src = event.target.result;
     };
@@ -41,10 +53,17 @@ document.getElementById('fileInput').addEventListener('change', function(e) {
 });
 
 document.getElementById('downloadBtn').addEventListener('click', function() {
-    const canvas = document.getElementById('previewCanvas');
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    
+    tempCanvas.width = originalWidth;
+    tempCanvas.height = originalHeight;
+    tempCtx.drawImage(document.getElementById('previewCanvas'), 
+        0, 0, tempCanvas.width, tempCanvas.height);
+    
     const link = document.createElement('a');
     link.download = 'converted.jpg';
-    link.href = canvas.toDataURL('image/jpeg', 0.9);
+    link.href = tempCanvas.toDataURL('image/jpeg', 0.9);
     link.click();
 });
 </script>
