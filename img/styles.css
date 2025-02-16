@@ -1,10 +1,15 @@
-/* Temel Ayarlar */
+/* Temel Reset ve Global Stiller */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
 body {
     background: #0a0a0a;
     color: #ffffff;
-    font-family: 'Inter', sans-serif;
     min-height: 100vh;
-    margin: 0;
     padding: 2rem;
 }
 
@@ -13,12 +18,12 @@ body {
     margin: 0 auto;
 }
 
-/* Başlık */
+/* Header ve Navigasyon */
 .header {
+    position: relative;
     text-align: center;
     margin-bottom: 3rem;
-    position: relative;
-    padding: 1rem 0;
+    padding: 2rem 0;
 }
 
 .gradient-text {
@@ -29,6 +34,25 @@ body {
     font-weight: 700;
 }
 
+.back-button {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #00ff88;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 8px 16px;
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    background: rgba(0, 255, 136, 0.1);
+    border-color: #00ff88;
+}
+
 /* Mod Seçici */
 .mode-switch {
     background: rgba(255, 255, 255, 0.05);
@@ -37,7 +61,7 @@ body {
     display: flex;
     position: relative;
     width: 300px;
-    margin: 0 auto 2rem;
+    margin: 0 auto 3rem;
     backdrop-filter: blur(10px);
 }
 
@@ -47,8 +71,8 @@ body {
     text-align: center;
     cursor: pointer;
     z-index: 1;
-    transition: color 0.3s ease;
     color: rgba(255, 255, 255, 0.5);
+    transition: color 0.3s ease;
 }
 
 .mode-option.active {
@@ -64,7 +88,7 @@ body {
     top: 5px;
 }
 
-/* Input Alanları */
+/* Input ve Çıktı Alanları */
 .input-field {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -92,19 +116,10 @@ body {
     resize: vertical;
 }
 
-/* Çıktı Alanı */
-.output-field {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 1rem;
-    min-height: 100px;
-    word-break: break-word;
-    font-family: monospace;
-    margin-top: 2rem;
+.input-group {
+    position: relative;
 }
 
-/* Karakter Sayacı */
 .char-count {
     position: absolute;
     bottom: 25px;
@@ -113,15 +128,59 @@ body {
     font-size: 0.85rem;
 }
 
-.back-button {
-    position: absolute;
-    left: 1rem;
-    top: 1.5rem;
-    color: #00ff88;
-    text-decoration: none;
-    font-weight: 600;
+.output-field {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    min-height: 100px;
+    word-break: break-word;
+    font-family: monospace;
+    margin-top: 2rem;
+    line-height: 1.6;
 }
 
-.input-group {
-    position: relative;
+/* Responsive Tasarım */
+@media (max-width: 768px) {
+    body {
+        padding: 1rem;
+    }
+
+    .header {
+        padding: 1rem 0 3rem;
+    }
+
+    .gradient-text {
+        font-size: 2rem;
+    }
+
+    .back-button {
+        position: static;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        transform: none;
+    }
+
+    .mode-switch {
+        width: 100%;
+        max-width: 280px;
+    }
+
+    .input-field {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 10px;
+    }
+
+    .gradient-text {
+        font-size: 1.75rem;
+    }
+
+    .output-field {
+        font-size: 0.9rem;
+    }
 }
