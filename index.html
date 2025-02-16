@@ -13,16 +13,33 @@
             background: #0a0a0a;
             cursor: default;
             overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .dynamic-bg {
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 50% 50%, 
+                rgba(20, 200, 240, 0.1) 0%, 
+                rgba(20, 200, 240, 0) 70%);
+            pointer-events: none;
+            transition: transform 0.4s ease-out;
+            z-index: -1;
         }
 
         .logo-effect {
+            background: linear-gradient(45deg, #00ffe5, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             animation: glow 2s ease-in-out infinite alternate;
-            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
         }
 
         @keyframes glow {
-            from { opacity: 0.9; }
-            to { opacity: 1; }
+            from { filter: brightness(0.9); }
+            to { filter: brightness(1.2); }
         }
 
         .tool-card {
@@ -32,11 +49,28 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
             transform: translateZ(0);
+            position: relative;
+            overflow: hidden;
         }
 
-        .tool-card:hover {
-            transform: perspective(1000px) rotateX(3deg) rotateY(3deg) translateY(-8px);
-            box-shadow: 0 8px 32px rgba(0, 255, 100, 0.1);
+        .tool-card:hover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.05),
+                transparent
+            );
+            animation: slide 1.2s;
+        }
+
+        @keyframes slide {
+            100% { left: 100%; }
         }
 
         .ad-check {
@@ -53,6 +87,9 @@
     <!-- AdBlock Check -->
     <div class="ad-check" id="adCheck">ad</div>
 
+    <!-- Dynamic Background -->
+    <div class="dynamic-bg" id="dynamicBg"></div>
+
     <!-- Main Content -->
     <div class="container mx-auto px-4 py-20">
         <!-- Header -->
@@ -63,7 +100,26 @@
 
         <!-- Tools Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <!-- Tools Cards (Same as before) -->
+            <!-- PNG to JPEG Card -->
+            <div class="tool-card p-8 cursor-pointer" onclick="window.location.href='/asd/pngtojpeg'">
+                <div class="text-[#00ff88] text-4xl mb-4">🖼️</div>
+                <h3 class="text-2xl font-semibold mb-2">PNG → JPEG</h3>
+                <p class="text-gray-400">Yüksek kalitede görsel dönüşümü</p>
+            </div>
+
+            <!-- Text Encrypt Card -->
+            <div class="tool-card p-8 cursor-pointer">
+                <div class="text-[#00ff88] text-4xl mb-4">🔒</div>
+                <h3 class="text-2xl font-semibold mb-2">Metin Şifreleme</h3>
+                <p class="text-gray-400">Güvenli AES-256 şifreleme</p>
+            </div>
+
+            <!-- QR Generator Card -->
+            <div class="tool-card p-8 cursor-pointer">
+                <div class="text-[#00ff88] text-4xl mb-4">📲</div>
+                <h3 class="text-2xl font-semibold mb-2">QR Oluşturucu</h3>
+                <p class="text-gray-400">Dinamik QR kodları yaratın</p>
+            </div>
         </div>
     </div>
 
@@ -76,6 +132,15 @@
             </div>`;
             throw new Error("AdBlock detected");
         }
+
+        // Arkaplan Işık Hareketi
+        document.addEventListener('mousemove', (e) => {
+            const bg = document.getElementById('dynamicBg');
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+            
+            bg.style.transform = `translate(${mouseX * 50}px, ${mouseY * 50}px)`;
+        });
 
         // Gelişmiş Inspect Engelleme
         document.addEventListener('contextmenu', e => e.preventDefault());
