@@ -9,30 +9,30 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body class="green-bg">
-    <a href="index.html" class="back-button">&lt;</a>
-    
     <div class="container">
+        <a href="index.html" class="back-button gradient-text">&lt;</a>
+        
         <header class="header">
-            <h1>QR Oluşturucu</h1>
+            <h1 class="gradient-text">QR OLUŞTURUCU</h1>
         </header>
 
-        <div class="tool-content">
+        <div class="qr-content">
             <input 
                 type="text" 
                 id="qrInput" 
                 class="input-field" 
-                placeholder="Metin veya link girin"
-                autocomplete="off"
+                placeholder="🔗 Metin veya URL girin"
             >
             
-            <div class="qr-container">
+            <div class="qr-wrapper">
                 <div id="qrcode"></div>
-                <div class="download-btn-container">
-                    <button id="downloadBtn" class="primary-btn" hidden>İndir</button>
-                </div>
-                <div class="color-switch">
-                    <div class="color-option active" data-color="#00ff88" style="background:#00ff88"></div>
-                    <div class="color-option" data-color="#ffffff" style="background:#ffffff"></div>
+                
+                <div class="controls">
+                    <div class="color-switch">
+                        <div class="color-option active" data-color="#00ff88"></div>
+                        <div class="color-option" data-color="#ffffff"></div>
+                    </div>
+                    <button id="downloadBtn" class="primary-btn">İNDİR</button>
                 </div>
             </div>
         </div>
@@ -43,24 +43,19 @@ let qr = null;
 let selectedColor = '#00ff88';
 
 document.getElementById('qrInput').addEventListener('input', function() {
-    // Eski QR'yi temizle
     if(qr) {
         qr.clear();
         document.getElementById('qrcode').innerHTML = '';
-        document.getElementById('downloadBtn').hidden = true;
     }
     
-    // Yeni QR oluştur
-    if(this.value.length > 0) {
+    if(this.value) {
         qr = new QRCode(document.getElementById('qrcode'), {
             text: this.value,
             width: 250,
             height: 250,
             colorDark: selectedColor,
-            colorLight: 'transparent',
-            correctLevel: QRCode.CorrectLevel.H
+            colorLight: 'transparent'
         });
-        document.getElementById('downloadBtn').hidden = false;
     }
 });
 
@@ -75,8 +70,10 @@ document.querySelectorAll('.color-option').forEach(option => {
 
 document.getElementById('downloadBtn').addEventListener('click', () => {
     const canvas = document.querySelector('#qrcode canvas');
+    if(!canvas) return alert('❌ Önce QR oluşturun!');
+    
     const link = document.createElement('a');
-    link.download = 'qrcode-toolgate.png';
+    link.download = 'toolgate-qr.png';
     link.href = canvas.toDataURL();
     link.click();
 });

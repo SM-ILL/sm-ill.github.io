@@ -5,61 +5,164 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ToolGate</title>
     <link rel="icon" type="image/png" href="https://i.imgur.com/mVJuMCw.png">
-    <link rel="stylesheet" href="styles/styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            cursor: default;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .dynamic-bg {
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 50% 50%, 
+                rgba(20, 200, 240, 0.1) 0%, 
+                rgba(20, 200, 240, 0) 70%);
+            pointer-events: none;
+            transition: transform 0.4s ease-out;
+            z-index: -1;
+        }
+
+        .logo-effect {
+            background: linear-gradient(45deg, #00ffe5, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: brightness(0.9); }
+            to { filter: brightness(1.2); }
+        }
+
+        .tool-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            transform: translateZ(0);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card:hover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.05),
+                transparent
+            );
+            animation: slide 1.2s;
+        }
+
+        @keyframes slide {
+            100% { left: 100%; }
+        }
+
+        .ad-check {
+            width: 1px;
+            height: 1px;
+            position: absolute;
+            left: -100px;
+            top: -100px;
+            visibility: hidden;
+        }
+    </style>
 </head>
-<body>
+<body class="text-white">
+    <!-- AdBlock Check -->
     <div class="ad-check" id="adCheck">ad</div>
+
+    <!-- Dynamic Background -->
     <div class="dynamic-bg" id="dynamicBg"></div>
-    
-    <div class="container">
-        <header class="header">
-            <h1 class="logo-effect">ToolGate</h1>
-            <p>Creative Tools</p>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-20">
+        <!-- Header -->
+        <header class="text-center mb-20">
+            <h1 class="text-6xl font-bold mb-4 logo-effect">ToolGate</h1>
+            <p class="text-gray-400 text-xl">Creative Tools</p>
         </header>
 
-        <div class="tools-grid">
-            <div class="tool-card" onclick="window.location.href='pngtojpeg.html'">
-                <h3>PNG → JPEG</h3>
-                <p>Yüksek kalitede görsel dönüşümü</p>
+        <!-- Tools Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <!-- PNG to JPEG Card -->
+            <div class="tool-card p-8 cursor-pointer" onclick="window.location.href='/asd/pngtojpeg'">
+                <h3 class="text-2xl font-semibold mb-2">PNG → JPEG</h3>
+                <p class="text-gray-400">Yüksek kalitede görsel dönüşümü</p>
             </div>
 
-            <div class="tool-card" onclick="window.location.href='aes-256.html'">
-                <h3>Metin Şifreleme</h3>
-                <p>Güvenli AES-256 şifreleme</p>
+            <!-- Text Encrypt Card -->
+            <div class="tool-card p-8 cursor-pointer" onclick="window.location.href='/aes-256'">
+                <h3 class="text-2xl font-semibold mb-2">Metin Şifreleme</h3>
+                <p class="text-gray-400">Güvenli AES-256 şifreleme</p>
             </div>
 
-            <div class="tool-card" onclick="window.location.href='qr.html'">
-                <h3>QR Oluşturucu</h3>
-                <p>Dinamik QR kodları yaratın</p>
+            <!-- QR Generator Card -->
+            <div class="tool-card p-8 cursor-pointer" onclick="window.location.href='/qr'">
+                <h3 class="text-2xl font-semibold mb-2">QR Oluşturucu</h3>
+                <p class="text-gray-400">Dinamik QR kodları yaratın</p>
             </div>
         </div>
     </div>
 
-<script>
-if(document.getElementById('adCheck').offsetHeight === 0) {
-    document.body.innerHTML = `<div class="error-message">Lütfen AdBlock'u devre dışı bırakın!</div>`;
-    throw new Error("AdBlock detected");
-}
+    <!-- Interactive Scripts -->
+    <script>
+        // AdBlock Tespiti
+        if(document.getElementById('adCheck').offsetHeight === 0) {
+            document.body.innerHTML = `<div class="text-center p-20 text-red-500 text-2xl">
+                Lütfen AdBlock'u devre dışı bırakın!
+            </div>`;
+            throw new Error("AdBlock detected");
+        }
 
-document.addEventListener('mousemove', (e) => {
-    const bg = document.getElementById('dynamicBg');
-    bg.style.transform = `translate(${e.clientX/10}px, ${e.clientY/10}px)`;
-});
+        // Arkaplan Işık Hareketi
+        document.addEventListener('mousemove', (e) => {
+            const bg = document.getElementById('dynamicBg');
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+            
+            bg.style.transform = `translate(${mouseX * 50}px, ${mouseY * 50}px)`;
+        });
 
-document.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('keydown', e => {
-    if(e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','C'].includes(e.key))) {
-        e.preventDefault();
-        window.location.href = 'about:blank';
-    }
-});
+        // Gelişmiş Inspect Engelleme
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C'))) {
+                e.preventDefault();
+                window.location.href = 'about:blank';
+            }
+        });
 
-let konamiCode = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight'];
-let konamiIndex = 0;
-document.addEventListener('keydown', (e) => {
-    konamiCode[konamiIndex] === e.key ? konamiIndex++ : konamiIndex = 0;
-    if(konamiIndex === konamiCode.length) window.location.href = '/sectabslistsshsml';
-});
-</script>
+        // Konami Kodu (↑↑↓↓←→←→)
+        let konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 
+                        'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight'];
+        let konamiIndex = 0;
+        
+        document.addEventListener('keydown', (e) => {
+            konamiCode[konamiIndex] === e.key ? konamiIndex++ : konamiIndex = 0;
+            
+            if(konamiIndex === konamiCode.length) {
+                window.location.href = '/sectabslistsshsml';
+                konamiIndex = 0;
+            }
+        });
+    </script>
 </body>
 </html>

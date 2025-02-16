@@ -1,24 +1,129 @@
-/* Ana Sayfa Buton Stili */
+/* TEMEL STİLLER */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background: #0a0a0a;
+    color: #ffffff;
+    min-height: 100vh;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* ANA KAPLAMA */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* HEADER VE LOGO */
+.header {
+    text-align: center;
+    margin-bottom: 4rem;
+    position: relative;
+}
+
+.logo-effect {
+    background: linear-gradient(45deg, #00ff88, #00ffe5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 4rem; /* Büyütüldü */
+    font-weight: 800;
+    letter-spacing: -2px;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 20px rgba(0,255,136,0.2);
+}
+
+/* GERİ BUTONU */
 .back-button {
-    position: absolute;
-    left: 1rem;
-    top: 1rem;
-    color: #00ff88 !important;
+    position: fixed;
+    left: 2rem;
+    top: 2rem;
+    color: #00ff88;
     text-decoration: none;
-    font-size: 1.5rem;
-    font-weight: bold;
-    padding: 0.5rem;
-    transition: opacity 0.3s;
+    font-size: 2.5rem;
+    font-weight: 700;
+    transition: all 0.3s;
+    z-index: 100;
 }
 
 .back-button:hover {
+    transform: scale(1.1);
     opacity: 0.8;
 }
 
-/* QR Container */
-.qr-container {
+/* TOOL KARTLARI */
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.tool-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.tool-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,255,136,0.1);
+}
+
+.tool-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
     width: 100%;
-    max-width: 300px;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,0.05),
+        transparent
+    );
+    transition: 0.5s;
+}
+
+.tool-card:hover::before {
+    left: 100%;
+}
+
+/* FORM ELEMENTLERİ */
+.input-field {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 1rem;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    color: #fff;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.input-field:focus {
+    border-color: #00ff88;
+    box-shadow: 0 0 15px rgba(0,255,136,0.2);
+    outline: none;
+}
+
+/* QR OLUŞTURUCU */
+.qr-wrapper {
+    max-width: 500px;
     margin: 2rem auto;
     position: relative;
 }
@@ -28,67 +133,104 @@
     justify-content: center;
     align-items: center;
     min-height: 300px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 16px;
+    margin: 2rem 0;
 }
 
-#qrcode canvas {
-    transition: opacity 0.3s;
-}
-
-/* Renk Seçici */
-.color-switch {
-    position: absolute;
-    left: 1rem;
-    bottom: 1rem;
+.controls {
     display: flex;
-    gap: 0.5rem;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.color-switch {
+    display: flex;
+    gap: 1rem;
 }
 
 .color-option {
-    width: 30px;
-    height: 30px;
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
     cursor: pointer;
     border: 2px solid transparent;
+    transition: all 0.3s;
 }
+
+.color-option[data-color="#00ff88"] { background: #00ff88; }
+.color-option[data-color="#ffffff"] { background: #ffffff; }
 
 .color-option.active {
     border-color: #00ff88;
+    transform: scale(1.1);
 }
 
-/* İndir Butonu */
-.download-btn-container {
-    position: absolute;
-    right: 1rem;
-    bottom: 1rem;
-}
-
+/* İNDİR BUTONU */
 .primary-btn {
     background: #00ff88;
     color: #000;
     border: none;
-    padding: 0.5rem 1.5rem;
-    border-radius: 6px;
-    cursor: pointer;
+    padding: 0.8rem 2rem;
+    border-radius: 8px;
     font-weight: 600;
+    cursor: pointer;
     transition: all 0.3s;
 }
 
 .primary-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 15px rgba(0,255,136,0.3);
+    opacity: 0.9;
+    box-shadow: 0 0 20px rgba(0,255,136,0.3);
 }
 
-/* PNG→JPEG Özel */
+/* PNG→JPEG */
 .image-preview {
-    max-width: 500px;
-    max-height: 500px;
+    max-width: 600px;
     margin: 2rem auto;
     position: relative;
 }
 
 #previewCanvas {
     max-width: 100%;
-    max-height: 100%;
+    max-height: 70vh;
     display: block;
     margin: 0 auto;
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(0,255,136,0.1);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .logo-effect {
+        font-size: 3rem;
+    }
+    
+    .back-button {
+        left: 1rem;
+        top: 1rem;
+        font-size: 2rem;
+    }
+    
+    .tools-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-effect {
+        font-size: 2.5rem;
+    }
+    
+    .primary-btn {
+        width: 100%;
+    }
+    
+    .color-switch {
+        gap: 0.5rem;
+    }
 }
