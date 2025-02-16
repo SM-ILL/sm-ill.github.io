@@ -10,32 +10,30 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <header class="header">
+            <a href="index.html" class="back-button">← Ana Sayfa</a>
             <h1 class="gradient-text">AES-256 Şifreleme</h1>
         </header>
 
-        <!-- Mod Seçici -->
         <div class="mode-switch" id="modeSwitch">
             <div class="mode-option active" data-mode="encrypt">Şifrele</div>
             <div class="mode-option" data-mode="decrypt">Çöz</div>
             <div class="slider-track" id="slider"></div>
         </div>
 
-        <!-- İçerik -->
         <div class="content">
             <input 
                 type="password" 
                 id="encryptionKey" 
                 class="input-field" 
-                placeholder="🔑 Şifreleme Anahtarı"
+                placeholder="Şifreleme Anahtarı"
             >
 
             <div class="input-group">
                 <textarea 
                     id="inputText" 
                     class="input-field textarea" 
-                    placeholder="✍️ Metin girin..."
+                    placeholder="Metin girin..."
                 ></textarea>
                 <div class="char-count" id="charCount">0</div>
             </div>
@@ -44,71 +42,64 @@
         </div>
     </div>
 
-    <!-- JavaScript Kodları -->
-    <script>
-        // DOM Elementleri
-        const modeOptions = document.querySelectorAll('.mode-option');
-        const slider = document.getElementById('slider');
-        const inputField = document.getElementById('inputText');
-        const keyField = document.getElementById('encryptionKey');
-        const outputField = document.getElementById('outputText');
-        const charCount = document.getElementById('charCount');
-        let currentMode = 'encrypt';
+<script>
+const modeOptions = document.querySelectorAll('.mode-option');
+const slider = document.getElementById('slider');
+const inputField = document.getElementById('inputText');
+const keyField = document.getElementById('encryptionKey');
+const outputField = document.getElementById('outputText');
+const charCount = document.getElementById('charCount');
+let currentMode = 'encrypt';
 
-        // Slider Pozisyonu
-        function updateSlider(activeOption) {
-            slider.style.width = `${activeOption.offsetWidth - 10}px`;
-            slider.style.transform = `translateX(${activeOption.offsetLeft - 5}px)`;
+function updateSlider(activeOption) {
+    slider.style.width = `${activeOption.offsetWidth - 10}px`;
+    slider.style.transform = `translateX(${activeOption.offsetLeft - 5}px)`;
+}
+
+modeOptions.forEach(option => {
+    option.addEventListener('click', () => {
+        modeOptions.forEach(o => o.classList.remove('active'));
+        option.classList.add('active');
+        currentMode = option.dataset.mode;
+        updateSlider(option);
+        processText();
+    });
+});
+
+[inputField, keyField].forEach(field => {
+    field.addEventListener('input', () => {
+        processText();
+        charCount.textContent = inputField.value.length;
+    });
+});
+
+function processText() {
+    const key = keyField.value;
+    const text = inputField.value;
+
+    if (!key || !text) {
+        outputField.textContent = '';
+        return;
+    }
+
+    try {
+        if (currentMode === 'encrypt') {
+            const encrypted = CryptoJS.AES.encrypt(text, key).toString();
+            outputField.textContent = encrypted;
+            outputField.style.color = '#00ff88';
+        } else {
+            const bytes = CryptoJS.AES.decrypt(text, key);
+            const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+            outputField.textContent = decrypted || "Geçersiz anahtar!";
+            outputField.style.color = decrypted ? '#00ff88' : '#ff5555';
         }
+    } catch (error) {
+        outputField.textContent = "Sistem hatası!";
+        outputField.style.color = '#ff5555';
+    }
+}
 
-        // Mod Değiştirme
-        modeOptions.forEach(option => {
-            option.addEventListener('click', () => {
-                modeOptions.forEach(o => o.classList.remove('active'));
-                option.classList.add('active');
-                currentMode = option.dataset.mode;
-                updateSlider(option);
-                processText();
-            });
-        });
-
-        // Anlık İşlem
-        [inputField, keyField].forEach(field => {
-            field.addEventListener('input', () => {
-                processText();
-                charCount.textContent = inputField.value.length;
-            });
-        });
-
-        // Şifreleme/Çözme
-        function processText() {
-            const key = keyField.value;
-            const text = inputField.value;
-
-            if (!key || !text) {
-                outputField.textContent = '';
-                return;
-            }
-
-            try {
-                if (currentMode === 'encrypt') {
-                    const encrypted = CryptoJS.AES.encrypt(text, key).toString();
-                    outputField.textContent = encrypted;
-                    outputField.style.color = '#00ff88';
-                } else {
-                    const bytes = CryptoJS.AES.decrypt(text, key);
-                    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
-                    outputField.textContent = decrypted || "❌ Geçersiz anahtar!";
-                    outputField.style.color = decrypted ? '#00ff88' : '#ff5555';
-                }
-            } catch (error) {
-                outputField.textContent = "❌ Sistem hatası!";
-                outputField.style.color = '#ff5555';
-            }
-        }
-
-        // İlk Slider Ayarı
-        updateSlider(document.querySelector('.active'));
-    </script>
+updateSlider(document.querySelector('.active'));
+</script>
 </body>
 </html>
