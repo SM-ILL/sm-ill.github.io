@@ -4,132 +4,198 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ToolGate</title>
-    <link rel="icon" type="image/png" href="https://i.imgur.com/mVJuMCw.png">
-    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="icon" type="image/png" href="img/icon.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Space Grotesk', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        body {
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .logo-effect {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00ff88 25%, #00ffe5 75%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 40px rgba(0,255,136,0.4);
+            transition: all 0.6s ease; /* Daha yavaş animasyon */
+            display: inline-block;
+        }
+
+        .logo-effect:hover {
+            text-shadow: 0 0 40px rgba(0, 123, 255, 0.4);
+        }
+
+        .subtitle {
+            color: #8a8a8a;
+            font-size: 1.4rem;
+            margin-top: 1rem;
+            font-weight: 300;
+            text-align: center;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 4rem auto;
+        }
+
+        .tool-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(12px);
+            position: relative;
+            overflow: hidden;
+            transform: translateY(0) rotateX(0) rotateY(0);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-10px) rotateX(10deg) rotateY(10deg); /* Daha belirgin dönme efekti */
+            box-shadow: 0 10px 30px rgba(0,255,136,0.1);
+        }
+
+        .tool-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #00ff88;
+        }
+
+        .tool-card p {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .parallax-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, 
+                rgba(0,255,136,0.1) 0%,
+                rgba(0,255,136,0) 70%);
+            pointer-events: none;
+            z-index: -1;
+            transform: translateZ(0);
+        }
+
+        @media (max-width: 768px) {
+            .logo-effect { font-size: 3.5rem; }
+            .tools-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            .logo-effect { font-size: 2.8rem; }
+            .container { padding: 1.5rem; }
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Space+Grotesk:wght@400;600&display=swap');
+    </style>
 </head>
-<body class="text-white">
-    <div class="ad-check" id="adCheck"></div> <!-- Görünmez reklam kontrolü -->
-    <div class="dynamic-bg" id="dynamicBg"></div>
+<body>
+    <div class="parallax-bg"></div>
 
     <div class="container">
         <header class="header">
-            <h1 class="logo-effect" id="mainLogo">TOOLGATE</h1>
+            <h1 class="logo-effect">TOOLGATE</h1>
             <p class="subtitle">Creative Solutions</p>
         </header>
 
         <div class="tools-grid">
             <div class="tool-card" onclick="window.location.href='pngtojpg.html'">
                 <h3>PNG → JPEG</h3>
-                <p>Profesyonel Görsel Dönüşüm</p>
+                <p>Yüksek kalitede görsel dönüşüm</p>
             </div>
 
             <div class="tool-card" onclick="window.location.href='aes-256.html'">
                 <h3>Metin Şifreleme</h3>
-                <p>AES-256 Güvenliği</p>
+                <p>AES-256 ile güvenli şifreleme</p>
             </div>
 
             <div class="tool-card" onclick="window.location.href='qr.html'">
                 <h3>QR Oluşturucu</h3>
-                <p>Dinamik Kod Üretimi</p>
+                <p>Dinamik QR kod üretimi</p>
             </div>
         </div>
     </div>
 
-<script>
-// Gelişmiş AdBlock Tespiti
-const adElements = [
-    document.getElementById('adCheck'),
-    ...document.getElementsByClassName('ad-placeholder')
-];
+    <script>
+        // Araç kartlarına parallax efekti
+        const toolCards = document.querySelectorAll('.tool-card');
+        toolCards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width - 0.5;
+                const y = (e.clientY - rect.top) / rect.height - 0.5;
+                card.style.transform = `translateY(-10px) rotateX(${y * 20}deg) rotateY(${x * 20}deg)`; // Daha belirgin dönme
+            });
 
-setInterval(() => {
-    if(adElements.some(el => getComputedStyle(el).display === 'none')) {
-        document.body.innerHTML = `
-            <div class="adblock-error">
-                <h2>⚠️ ERİŞİM ENGELLENDİ</h2>
-                <p>Lütfen reklam engelleyiciyi devre dışı bırakın</p>
-                <button onclick="location.reload()">Tekrar Dene</button>
-            </div>
-        `;
-        throw new Error("AdBlock detected");
-    }
-}, 1000);
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) rotateX(0) rotateY(0)';
+            });
+        });
 
-// Logo Animasyonu
-const logo = document.getElementById('mainLogo');
-let animationFrame;
+        // Konami Kodu
+        const konamiCode = [
+            'ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown',
+            'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight',
+            'b', 'a'
+        ];
+        let konamiIndex = 0;
 
-logo.addEventListener('mousemove', (e) => {
-    cancelAnimationFrame(animationFrame);
-    const rect = logo.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    
-    logo.style.transform = `
-        perspective(1000px) 
-        rotateX(${y*20}deg) 
-        rotateY(${x*20}deg)
-    `;
-});
+        document.addEventListener('keydown', (e) => {
+            if (e.key === konamiCode[konamiIndex]) {
+                konamiIndex++;
+                if (konamiIndex === konamiCode.length) {
+                    window.location.href = '/hisisnotatoolforcreativtysoidk';
+                }
+            } else {
+                konamiIndex = 0;
+            }
+        });
 
-logo.addEventListener('mouseleave', () => {
-    animationFrame = requestAnimationFrame(() => {
-        logo.style.transform = 'none';
-    });
-});
-
-// Gelişmiş Kart Parallax
-document.querySelectorAll('.tool-card').forEach(card => {
-    let timeout;
-
-    card.addEventListener('mousemove', (e) => {
-        clearTimeout(timeout);
-        const rect = card.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width - 0.5;
-        const y = (e.clientY - rect.top) / rect.height - 0.5;
-        
-        card.style.transform = `
-            perspective(1000px) 
-            rotateX(${y*15}deg) 
-            rotateY(${x*15}deg) 
-            scale(1.05)
-        `;
-    });
-
-    card.addEventListener('mouseleave', () => {
-        timeout = setTimeout(() => {
-            card.style.transform = 'none';
-        }, 1000);
-    });
-});
-
-// Arkaplan Hareketi
-document.addEventListener('mousemove', (e) => {
-    const bg = document.getElementById('dynamicBg');
-    bg.style.transform = `
-        translate(
-            ${(e.clientX/window.innerWidth)*30}px,
-            ${(e.clientY/window.innerHeight)*30}px
-        )
-    `;
-});
-
-// Güvenlik Önlemleri
-document.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('keydown', e => {
-    if(e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','C'].includes(e.key))) {
-        e.preventDefault();
-        window.location.href = 'about:blank';
-    }
-});
-
-// Konami Kodu
-const konamiCode = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight'];
-let konamiIndex = 0;
-document.addEventListener('keydown', (e) => {
-    konamiIndex = konamiCode[konamiIndex] === e.key ? konamiIndex + 1 : 0;
-    if(konamiIndex === konamiCode.length) window.location.href = '/sectabslistsshsml';
-});
-</script>
+        // İnceleme menüsünü engelleme
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+        document.addEventListener('keydown', (e) => {
+            if (
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) || // Ctrl+Shift+I
+                (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j')) || // Ctrl+Shift+J
+                (e.ctrlKey && (e.key === 'U' || e.key === 'u')) // Ctrl+U
+            ) {
+                e.preventDefault();
+            }
+        });
+    </script>
 </body>
 </html>
