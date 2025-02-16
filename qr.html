@@ -22,7 +22,12 @@
                 class="input-field" 
                 placeholder="🔗 Link/Metin"
             >
-            <button onclick="generateQR()" class="action-button">⚡ Oluştur</button>
+            
+            <div class="color-switch">
+                <div class="color-option active" data-color="#00ff88">🌿</div>
+                <div class="color-option" data-color="#ffffff">⚪</div>
+            </div>
+
             <div id="qrcode" class="qr-output"></div>
             <button onclick="downloadQR()" class="download-button" hidden>📥 İndir</button>
         </div>
@@ -30,22 +35,38 @@
 
 <script>
 let qr = null;
+let selectedColor = '#00ff88';
+
+document.getElementById('qrInput').addEventListener('input', () => {
+    setTimeout(generateQR, 1);
+});
+
+document.querySelectorAll('.color-option').forEach(option => {
+    option.addEventListener('click', () => {
+        document.querySelectorAll('.color-option').forEach(o => o.classList.remove('active'));
+        option.classList.add('active');
+        selectedColor = option.dataset.color;
+        generateQR();
+    });
+});
 
 function generateQR() {
     const text = document.getElementById('qrInput').value;
-    if(!text) return alert("❌ Metin girin!");
+    if(!text) {
+        document.getElementById('qrcode').innerHTML = '';
+        document.querySelector('.download-button').hidden = true;
+        return;
+    }
     
     if(qr) qr.clear();
-    document.getElementById('qrcode').innerHTML = '';
-    document.querySelector('.download-button').hidden = false;
-
     qr = new QRCode(document.getElementById('qrcode'), {
         text: text,
         width: 200,
         height: 200,
-        colorDark: '#00ff88',
+        colorDark: selectedColor,
         colorLight: 'transparent'
     });
+    document.querySelector('.download-button').hidden = false;
 }
 
 function downloadQR() {
