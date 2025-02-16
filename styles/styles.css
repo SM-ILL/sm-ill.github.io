@@ -1,1 +1,208 @@
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}body{background:#0a0a0a;color:#fff;min-height:100vh;line-height:1.6}.container{max-width:800px;margin:0 auto;padding:2rem}.header{position:relative;text-align:center;margin-bottom:3rem;padding:1rem 0}.back-button{position:absolute;left:0;top:50%;transform:translateY(-50%);background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);border-radius:8px;padding:8px 16px;color:#00ff88;text-decoration:none;transition:all .3s}.back-button:hover{background:rgba(0,255,136,0.2)}.crypto-grid{display:grid;grid-template-columns:1fr 300px;gap:2rem;margin-bottom:2rem}.input-group{display:grid;gap:1.5rem}.input-field{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1rem;color:#fff;width:100%;margin-bottom:1.5rem;font-size:1rem;transition:all .3s}.input-field:focus{outline:none;border-color:#00ff88;box-shadow:0 0 15px rgba(0,255,136,0.2)}.textarea{height:150px;resize:vertical}.mode-switch{background:rgba(255,255,255,0.05);border-radius:50px;padding:5px;display:flex;position:relative;width:300px;backdrop-filter:blur(10px)}.mode-option{padding:12px 0;flex:1;text-align:center;cursor:pointer;z-index:1;color:rgba(255,255,255,0.5);transition:color .3s}.mode-option.active{color:#00ff88}.slider-track{position:absolute;background:rgba(0,255,136,0.15);border-radius:50px;transition:all .4s cubic-bezier(.4,0,.2,1);height:calc(100% - 10px);top:5px}.output-container{background:rgba(255,255,255,0.03);border-radius:12px;margin-top:2rem;opacity:0;transform:translateY(20px);transition:all .4s cubic-bezier(.4,0,.2,1)}.output-container.show{opacity:1;transform:translateY(0)}.output-field{border:1px solid transparent;padding:1.5rem;word-break:break-word;font-family:monospace}@media (max-width:768px){.container{padding:1rem}.crypto-grid{grid-template-columns:1fr}.mode-switch{width:100%;margin-bottom:2rem}.back-button{position:static;margin-bottom:1.5rem;transform:none}}@media (max-width:480px){.gradient-text{font-size:1.75rem}.output-field{font-size:.9rem}}
+/* TEMEL RESET VE GLOBAL STİLLER */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background: #0a0a0a;
+    color: #ffffff;
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+/* ANA KAPLAMA */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* HEADER VE NAVİGASYON */
+.header {
+    position: relative;
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 1rem 0;
+}
+
+.gradient-text {
+    background: linear-gradient(45deg, #00ff88, #00ffe5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.back-button {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 8px;
+    padding: 8px 16px;
+    color: #00ff88;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    background: rgba(0, 255, 136, 0.2);
+}
+
+/* ORTAK FORM ELEMENTLERİ */
+.input-field {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1rem;
+    color: white;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.input-field:focus {
+    border-color: #00ff88;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+    outline: none;
+}
+
+.textarea {
+    height: 150px;
+    resize: vertical;
+}
+
+/* AES-256 ÖZEL STİLLER */
+.mode-switch {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50px;
+    padding: 5px;
+    display: flex;
+    position: relative;
+    width: 300px;
+    margin: 2rem auto;
+    backdrop-filter: blur(10px);
+}
+
+.mode-option {
+    padding: 12px 0;
+    flex: 1;
+    text-align: center;
+    cursor: pointer;
+    z-index: 1;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.3s ease;
+}
+
+.mode-option.active {
+    color: #00ff88;
+}
+
+.slider-track {
+    position: absolute;
+    background: rgba(0, 255, 136, 0.15);
+    border-radius: 50px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    height: calc(100% - 10px);
+    top: 5px;
+}
+
+/* QR OLUŞTURUCU STİLLERİ */
+.qr-output {
+    margin: 2rem 0;
+    text-align: center;
+}
+
+#qrcode canvas {
+    border: 2px solid #00ff8833;
+    border-radius: 12px;
+    padding: 10px;
+}
+
+/* PNG→JPEG DÖNÜŞTÜRÜCÜ */
+.preview-box {
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    min-height: 200px;
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-box img {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: 8px;
+}
+
+/* BUTON STİLLERİ */
+.action-button {
+    background: linear-gradient(45deg, #00ff88, #00ffe5);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    color: #000;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    margin: 1rem 0;
+    transition: transform 0.2s;
+}
+
+.action-button:hover {
+    transform: scale(0.98);
+}
+
+.download-button {
+    display: block;
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid #00ff88;
+    padding: 12px 24px;
+    border-radius: 8px;
+    color: #00ff88;
+    text-align: center;
+    text-decoration: none;
+    margin-top: 1rem;
+}
+
+/* RESPONSIVE TASARIM */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .gradient-text {
+        font-size: 2rem;
+    }
+
+    .mode-switch {
+        width: 100%;
+        max-width: 280px;
+    }
+
+    .back-button {
+        position: static;
+        margin-bottom: 1.5rem;
+        transform: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .gradient-text {
+        font-size: 1.75rem;
+    }
+
+    .input-field {
+        font-size: 0.9rem;
+    }
+
+    .output-field {
+        font-size: 0.9rem;
+    }
+}
