@@ -8,62 +8,42 @@
     <link rel="stylesheet" href="styles/styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
-<body class="green-bg">
+<body>
     <div class="container">
         <header class="header">
-            <a href="index.html" class="back-button"></a>
-            <h1>AES-256 Şifreleme</h1>
+            <a href="index.html" class="back-button">🏠</a>
+            <h1>🔐 AES-256</h1>
         </header>
 
-        <div class="tool-content">
-            <input type="password" id="encryptionKey" class="input-field" placeholder="Şifreleme Anahtarı">
-            <textarea id="inputText" class="input-field textarea" placeholder="Metin girin"></textarea>
-            
-            <div class="switch-container">
-                <div class="switch-option active" data-mode="encrypt">Şifrele</div>
-                <div class="switch-option" data-mode="decrypt">Çöz</div>
+        <div class="crypto-grid">
+            <div class="input-group">
+                <input 
+                    type="password" 
+                    id="encryptionKey" 
+                    class="input-field" 
+                    placeholder="🔑"
+                >
+                <textarea 
+                    id="inputText" 
+                    class="input-field textarea" 
+                    placeholder="📝"
+                ></textarea>
             </div>
+            
+            <div class="mode-switch" id="modeSwitch">
+                <div class="mode-option active" data-mode="encrypt">🔒</div>
+                <div class="mode-option" data-mode="decrypt">🔓</div>
+                <div class="slider-track" id="slider"></div>
+            </div>
+        </div>
 
-            <div class="output-field" id="outputText"></div>
+        <div class="output-container" id="outputContainer">
+            <div class="output-field" id="outputText">🔄</div>
         </div>
     </div>
 
 <script>
-const switchOptions = document.querySelectorAll('.switch-option');
-let currentMode = 'encrypt';
-
-switchOptions.forEach(option => {
-    option.addEventListener('click', () => {
-        switchOptions.forEach(o => o.classList.remove('active'));
-        option.classList.add('active');
-        currentMode = option.dataset.mode;
-        processText();
-    });
-});
-
-document.querySelectorAll('input, textarea').forEach(field => {
-    field.addEventListener('input', processText);
-});
-
-function processText() {
-    const key = document.getElementById('encryptionKey').value;
-    const text = document.getElementById('inputText').value;
-    
-    if(!key || !text) return;
-    
-    try {
-        let result;
-        if(currentMode === 'encrypt') {
-            result = CryptoJS.AES.encrypt(text, key).toString();
-        } else {
-            const bytes = CryptoJS.AES.decrypt(text, key);
-            result = bytes.toString(CryptoJS.enc.Utf8) || "Geçersiz anahtar!";
-        }
-        document.getElementById('outputText').textContent = result;
-    } catch(error) {
-        document.getElementById('outputText').textContent = "Sistemsel hata!";
-    }
-}
+const modeOptions=document.querySelectorAll('.mode-option'),slider=document.getElementById('slider'),inputField=document.getElementById('inputText'),keyField=document.getElementById('encryptionKey'),outputContainer=document.getElementById('outputContainer'),outputField=document.getElementById('outputText');let currentMode='encrypt';function animateOutput(){outputContainer.style.opacity='0',outputContainer.style.transform='translateY(20px)',setTimeout(()=>{outputContainer.style.opacity='1',outputContainer.style.transform='translateY(0)'},300)}function updateSlider(e){slider.style.width=`${e.offsetWidth-10}px`,slider.style.transform=`translateX(${e.offsetLeft-5}px)`}modeOptions.forEach(e=>{e.addEventListener('click',()=>{modeOptions.forEach(t=>t.classList.remove('active')),e.classList.add('active'),currentMode=e.dataset.mode,updateSlider(e),processText()})}),[keyField,inputField].forEach(e=>{e.addEventListener('input',()=>{processText(),inputField.value.length>0&&animateOutput()})});function processText(){const e=keyField.value,t=inputField.value;if(!e||!t)return outputField.textContent='🔄',void(outputField.style.color='#00ff88');try{let a;if('encrypt'===currentMode)a=CryptoJS.AES.encrypt(t,e).toString(),outputField.style.borderColor='#00ff8833',outputField.textContent='✅🔐';else{const r=CryptoJS.AES.decrypt(t,e),l=r.toString(CryptoJS.enc.Utf8);a=l?'✅📜':'❌🔑',outputField.style.borderColor=l?'#00ff8833':'#ff555533'}outputField.textContent=a,outputField.style.color=a.includes('❌')?'#ff5555':'#00ff88'}catch(e){outputField.textContent='⚠️🔥',outputField.style.color='#ff5555'}}updateSlider(document.querySelector('.active'));
 </script>
 </body>
 </html>
