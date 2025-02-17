@@ -4,46 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AES-256 | ToolGate</title>
-    <link rel="icon" type="image/png" href="https://i.imgur.com/mVJuMCw.png">
-    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="icon" type="image/png" href="img/logo.png">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Space Grotesk',sans-serif;user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none}body{background:#070707;color:#fff;min-height:100vh;line-height:1.6;overflow-x:hidden}.nebula-bg{position:fixed;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 50% 50%,rgba(0,255,136,0.12) 0%,rgba(0,255,136,0) 50%),radial-gradient(circle at 30% 70%,rgba(0,255,224,0.1) 0%,rgba(0,255,224,0) 50%);pointer-events:none;z-index:-1;opacity:0.7;transition:transform 0.4s linear;will-change:transform}.container{max-width:1400px;margin:0 auto;padding:2rem;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh}.tools-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem;max-width:1200px;margin:4rem auto}.tool-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:2rem;cursor:pointer;transition:transform 0.4s cubic-bezier(0.16,1,0.3,1);backdrop-filter:blur(12px);position:relative;overflow:hidden;transform-style:preserve-3d;will-change:transform}.tool-card:hover{box-shadow:0 10px 30px rgba(0,255,136,0.1)}.tool-card h3{font-size:1.8rem;margin-bottom:1rem;color:#00ff88}.tool-card p{color:rgba(255,255,255,0.7)}@media (max-width:768px){.tools-grid{grid-template-columns:1fr}}@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Space+Grotesk:wght@400;600&display=swap');
+        
+        /* AES Page Specific Styles */
+        .crypto-grid { display: grid; gap: 2rem; width: 100%; max-width: 600px; }
+        .input-field { width: 100%; padding: 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; margin-bottom: 1rem; }
+        .textarea { height: 150px; resize: none; }
+        .mode-switch { position: relative; display: flex; gap: 1rem; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 15px; }
+        .mode-option { padding: 1rem; cursor: pointer; border-radius: 10px; z-index: 1; transition: all 0.3s ease; }
+        .mode-option.active { background: rgba(0,255,136,0.1); }
+        .slider-track { position: absolute; height: 80%; background: rgba(0,255,136,0.2); border-radius: 8px; transition: all 0.3s ease; }
+        .output-container { width: 100%; max-width: 600px; margin-top: 2rem; }
+        .output-field { padding: 1.5rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; min-height: 100px; word-break: break-all; }
+    </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
 <body>
+    <div class="nebula-bg"></div>
+    
     <div class="container">
-        <header class="header">
-            <a href="index.html" class="back-button">🏠</a>
-            <h1>🔐 AES-256</h1>
-        </header>
-
         <div class="crypto-grid">
-            <div class="input-group">
-                <input 
-                    type="password" 
-                    id="encryptionKey" 
-                    class="input-field" 
-                    placeholder="🔑"
-                >
-                <textarea 
-                    id="inputText" 
-                    class="input-field textarea" 
-                    placeholder="📝"
-                ></textarea>
-            </div>
-            
+            <input 
+                type="password" 
+                id="encryptionKey" 
+                class="input-field" 
+                placeholder="Şifreleme Anahtarı"
+            >
+            <textarea 
+                id="inputText" 
+                class="input-field textarea" 
+                placeholder="Metin girin..."
+            ></textarea>
+
             <div class="mode-switch" id="modeSwitch">
-                <div class="mode-option active" data-mode="encrypt">🔒</div>
-                <div class="mode-option" data-mode="decrypt">🔓</div>
+                <div class="mode-option active" data-mode="encrypt">Şifrele</div>
+                <div class="mode-option" data-mode="decrypt">Deşifre</div>
                 <div class="slider-track" id="slider"></div>
             </div>
-        </div>
 
-        <div class="output-container" id="outputContainer">
-            <div class="output-field" id="outputText">🔄</div>
+            <div class="output-container" id="outputContainer">
+                <div class="output-field" id="outputText"></div>
+            </div>
         </div>
     </div>
 
 <script>
-const modeOptions=document.querySelectorAll('.mode-option'),slider=document.getElementById('slider'),inputField=document.getElementById('inputText'),keyField=document.getElementById('encryptionKey'),outputContainer=document.getElementById('outputContainer'),outputField=document.getElementById('outputText');let currentMode='encrypt';function animateOutput(){outputContainer.style.opacity='0',outputContainer.style.transform='translateY(20px)',setTimeout(()=>{outputContainer.style.opacity='1',outputContainer.style.transform='translateY(0)'},300)}function updateSlider(e){slider.style.width=`${e.offsetWidth-10}px`,slider.style.transform=`translateX(${e.offsetLeft-5}px)`}modeOptions.forEach(e=>{e.addEventListener('click',()=>{modeOptions.forEach(t=>t.classList.remove('active')),e.classList.add('active'),currentMode=e.dataset.mode,updateSlider(e),processText()})}),[keyField,inputField].forEach(e=>{e.addEventListener('input',()=>{processText(),inputField.value.length>0&&animateOutput()})});function processText(){const e=keyField.value,t=inputField.value;if(!e||!t)return outputField.textContent='🔄',void(outputField.style.color='#00ff88');try{let a;if('encrypt'===currentMode)a=CryptoJS.AES.encrypt(t,e).toString(),outputField.style.borderColor='#00ff8833',outputField.textContent='✅🔐';else{const r=CryptoJS.AES.decrypt(t,e),l=r.toString(CryptoJS.enc.Utf8);a=l?'✅📜':'❌🔑',outputField.style.borderColor=l?'#00ff8833':'#ff555533'}outputField.textContent=a,outputField.style.color=a.includes('❌')?'#ff5555':'#00ff88'}catch(e){outputField.textContent='⚠️🔥',outputField.style.color='#ff5555'}}updateSlider(document.querySelector('.active'));
+const modeOptions=document.querySelectorAll('.mode-option'),slider=document.getElementById('slider'),inputField=document.getElementById('inputText'),keyField=document.getElementById('encryptionKey'),outputContainer=document.getElementById('outputContainer'),outputField=document.getElementById('outputText');let currentMode='encrypt';function animateOutput(){outputContainer.style.opacity='0',outputContainer.style.transform='translateY(20px)',setTimeout(()=>{outputContainer.style.opacity='1',outputContainer.style.transform='translateY(0)'},300)}function updateSlider(e){slider.style.width=`${e.offsetWidth-10}px`,slider.style.transform=`translateX(${e.offsetLeft-5}px)`}modeOptions.forEach(e=>{e.addEventListener('click',()=>{modeOptions.forEach(t=>t.classList.remove('active')),e.classList.add('active'),currentMode=e.dataset.mode,updateSlider(e),processText()})}),[keyField,inputField].forEach(e=>{e.addEventListener('input',()=>{processText(),inputField.value.length>0&&animateOutput()})});function processText(){const e=keyField.value,t=inputField.value;if(!e||!t)return outputField.textContent='',void(outputField.style.color='#00ff88');try{let a;if('encrypt'===currentMode)a=CryptoJS.AES.encrypt(t,e).toString(),outputField.style.borderColor='#00ff8833';else{const r=CryptoJS.AES.decrypt(t,e),l=r.toString(CryptoJS.enc.Utf8);a=l?l:'Geçersiz anahtar!',outputField.style.borderColor=l?'#00ff8833':'#ff555533'}outputField.textContent=a,outputField.style.color=a.includes('❌')?'#ff5555':'#00ff88'}catch(e){outputField.textContent='Hata oluştu!',outputField.style.color='#ff5555'}}updateSlider(document.querySelector('.active'));
 </script>
 </body>
 </html>
