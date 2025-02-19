@@ -15,6 +15,10 @@
     <label>Width: <input type="number" id="cropWidth" value="100"></label>
     <label>Height: <input type="number" id="cropHeight" value="100"></label>
     <button onclick="cropGIF()">Crop GIF</button>
+    <button onclick="generateSeed()">Generate Seed</button>
+    <br><br>
+    <label>Seed: <input type="text" id="seedValue" readonly></label>
+    <button onclick="importSeed()">Import Seed</button>
     <br><br>
     <canvas id="gifCanvas" style="border: 1px solid #000;"></canvas>
     <br><br>
@@ -92,6 +96,32 @@
             });
             
             gif.render();
+        }
+        
+        function generateSeed() {
+            const cropX = document.getElementById('cropX').value;
+            const cropY = document.getElementById('cropY').value;
+            const cropWidth = document.getElementById('cropWidth').value;
+            const cropHeight = document.getElementById('cropHeight').value;
+            
+            const seed = btoa(`x${cropX} y${cropY} w${cropWidth} h${cropHeight}`);
+            document.getElementById('seedValue').value = seed;
+        }
+        
+        function importSeed() {
+            const seed = document.getElementById('seedValue').value;
+            try {
+                const decoded = atob(seed);
+                const values = decoded.match(/x(\d+) y(\d+) w(\d+) h(\d+)/);
+                if (values) {
+                    document.getElementById('cropX').value = values[1];
+                    document.getElementById('cropY').value = values[2];
+                    document.getElementById('cropWidth').value = values[3];
+                    document.getElementById('cropHeight').value = values[4];
+                }
+            } catch (e) {
+                alert('Invalid seed value');
+            }
         }
     </script>
 </body>
