@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GIF Crop Tool</title>
     <script src="https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gifuct-js/dist/gifuct-js.min.js"></script>
 </head>
 <body>
     <h1>GIF Crop Tool</h1>
@@ -17,10 +18,8 @@
     <button onclick="cropGIF()">Crop GIF</button>
     <button onclick="generateSeed()">Generate Seed</button>
     <br><br>
-    <label>Seed: <input type="text" id="seedValue" readonly></label>
+    <label>Seed: <input type="text" id="seedValue"></label>
     <button onclick="importSeed()">Import Seed</button>
-    <br><br>
-    <canvas id="gifCanvas" style="border: 1px solid #000;"></canvas>
     <br><br>
     <h3>Cropped GIF Preview:</h3>
     <img id="croppedGifPreview" style="border: 1px solid #000; max-width: 100%;">
@@ -30,31 +29,20 @@
     <script>
         let originalGIF;
         
-        document.getElementById('gifInput').addEventListener('change', function(event) {
+        document.getElementById('gifInput').addEventListener('change', async function(event) {
             const file = event.target.files[0];
             if (file && file.type === 'image/gif') {
                 const reader = new FileReader();
-                reader.onload = function (e) {
-                    const gifImage = new Image();
-                    gifImage.onload = function () {
-                        originalGIF = gifImage;
-                        drawGIF(gifImage);
-                    };
-                    gifImage.src = e.target.result;
+                reader.onload = async function (e) {
+                    const buffer = new Uint8Array(reader.result);
+                    originalGIF = new gifuctjs.GIF(buffer);
+                    await originalGIF.decompressFrames(true);
                 };
-                reader.readAsDataURL(file);
+                reader.readAsArrayBuffer(file);
             }
         });
         
-        function drawGIF(gifImage) {
-            const canvas = document.getElementById('gifCanvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = gifImage.width;
-            canvas.height = gifImage.height;
-            ctx.drawImage(gifImage, 0, 0);
-        }
-        
-        function cropGIF() {
+        async function cropGIF() {
             if (!originalGIF) return;
             
             const cropX = parseInt(document.getElementById('cropX').value);
@@ -62,24 +50,31 @@
             const cropWidth = parseInt(document.getElementById('cropWidth').value);
             const cropHeight = parseInt(document.getElementById('cropHeight').value);
             
-            const croppedCanvas = document.createElement('canvas');
-            const croppedCtx = croppedCanvas.getContext('2d');
-            croppedCanvas.width = cropWidth;
-            croppedCanvas.height = cropHeight;
-            croppedCtx.drawImage(originalGIF, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
-            
-            createCroppedGif(croppedCanvas);
-        }
-        
-        function createCroppedGif(croppedCanvas) {
             const gif = new GIF({
                 workers: 2,
                 quality: 10,
-                width: croppedCanvas.width,
-                height: croppedCanvas.height
+                width: cropWidth,
+                height: cropHeight
             });
             
-            gif.addFrame(croppedCanvas, {delay: 200});
+            for (const frame of originalGIF.frames) {
+                if (!frame.dims) continue;
+                
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = cropWidth;
+                tempCanvas.height = cropHeight;
+                const ctx = tempCanvas.getContext('2d');
+                
+                const imgData = new ImageData(new Uint8ClampedArray(frame.patch), frame.dims.width, frame.dims.height);
+                const tempFrameCanvas = document.createElement('canvas');
+                tempFrameCanvas.width = frame.dims.width;
+                tempFrameCanvas.height = frame.dims.height;
+                const frameCtx = tempFrameCanvas.getContext('2d');
+                frameCtx.putImageData(imgData, 0, 0);
+                
+                ctx.drawImage(tempFrameCanvas, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+                gif.addFrame(tempCanvas, { delay: frame.delay || 100 });
+            }
             
             gif.on('finished', function(blob) {
                 const url = URL.createObjectURL(blob);
