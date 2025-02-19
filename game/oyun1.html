@@ -7,10 +7,90 @@
     <script src="https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.min.js"></script>
 </head>
 <body>
+    <h1>GIF Crop Tool</h1>
     <input type="file" id="gifInput" accept="image/gif">
+    <br><br>
+    <label>X: <input type="number" id="cropX" value="0"></label>
+    <label>Y: <input type="number" id="cropY" value="0"></label>
+    <label>Width: <input type="number" id="cropWidth" value="100"></label>
+    <label>Height: <input type="number" id="cropHeight" value="100"></label>
+    <button onclick="cropGIF()">Crop GIF</button>
+    <br><br>
     <canvas id="gifCanvas" style="border: 1px solid #000;"></canvas>
-    <button id="downloadBtn">Download Cropped GIF</button>
+    <br><br>
+    <button id="downloadBtn" style="display: none;">Download Cropped GIF</button>
     
-    <script src="crop.js"></script>
+    <script>
+        let originalGIF;
+        
+        document.getElementById('gifInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'image/gif') {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const gifImage = new Image();
+                    gifImage.onload = function () {
+                        originalGIF = gifImage;
+                        drawGIF(gifImage);
+                    };
+                    gifImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        function drawGIF(gifImage) {
+            const canvas = document.getElementById('gifCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = gifImage.width;
+            canvas.height = gifImage.height;
+            ctx.drawImage(gifImage, 0, 0);
+        }
+        
+        function cropGIF() {
+            if (!originalGIF) return;
+            
+            const cropX = parseInt(document.getElementById('cropX').value);
+            const cropY = parseInt(document.getElementById('cropY').value);
+            const cropWidth = parseInt(document.getElementById('cropWidth').value);
+            const cropHeight = parseInt(document.getElementById('cropHeight').value);
+            
+            const canvas = document.getElementById('gifCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            const croppedCanvas = document.createElement('canvas');
+            const croppedCtx = croppedCanvas.getContext('2d');
+            croppedCanvas.width = cropWidth;
+            croppedCanvas.height = cropHeight;
+            croppedCtx.drawImage(originalGIF, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+            
+            createCroppedGif(croppedCanvas);
+        }
+        
+        function createCroppedGif(croppedCanvas) {
+            const gif = new GIF({
+                workers: 2,
+                quality: 10,
+                width: croppedCanvas.width,
+                height: croppedCanvas.height
+            });
+            
+            gif.addFrame(croppedCanvas, {delay: 200});
+            
+            gif.on('finished', function(blob) {
+                const url = URL.createObjectURL(blob);
+                const downloadBtn = document.getElementById('downloadBtn');
+                downloadBtn.style.display = 'block';
+                downloadBtn.onclick = function() {
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'cropped.gif';
+                    a.click();
+                };
+            });
+            
+            gif.render();
+        }
+    </script>
 </body>
 </html>
