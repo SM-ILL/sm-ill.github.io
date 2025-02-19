@@ -3,121 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GIF Crop Tool</title>
-    <script src="https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gifuct-js/dist/gifuct-js.min.js"></script>
+    <title>Video Ters Çevir ve İndir</title>
+    <style>
+        video {
+            width: 100%;
+            max-width: 600px;
+        }
+    </style>
 </head>
 <body>
-    <h1>GIF Crop Tool</h1>
-    <input type="file" id="gifInput" accept="image/gif">
+    <h2>Video Ters Çevir ve İndir</h2>
+    <input type="file" accept="video/*" id="videoInput">
     <br><br>
-    <label>X: <input type="number" id="cropX" value="0"></label>
-    <label>Y: <input type="number" id="cropY" value="0"></label>
-    <label>Width: <input type="number" id="cropWidth" value="100"></label>
-    <label>Height: <input type="number" id="cropHeight" value="100"></label>
-    <button onclick="cropGIF()">Crop GIF</button>
-    <button onclick="generateSeed()">Generate Seed</button>
-    <br><br>
-    <label>Seed: <input type="text" id="seedValue"></label>
-    <button onclick="importSeed()">Import Seed</button>
-    <br><br>
-    <h3>Cropped GIF Preview:</h3>
-    <img id="croppedGifPreview" style="border: 1px solid #000; max-width: 100%;">
-    <br><br>
-    <button id="downloadBtn" style="display: none;">Download Cropped GIF</button>
-    
+    <video id="video" controls></video>
+    <br>
+    <button id="reverseBtn" disabled>Videoyu Ters Oynat</button>
+    <button id="downloadBtn" disabled>Videoyu İndir</button>
+
     <script>
-        let originalGIF;
-        
-        document.getElementById('gifInput').addEventListener('change', async function(event) {
+        document.getElementById('videoInput').addEventListener('change', function(event) {
             const file = event.target.files[0];
-            if (file && file.type === 'image/gif') {
-                const reader = new FileReader();
-                reader.onload = async function (e) {
-                    const buffer = new Uint8Array(reader.result);
-                    originalGIF = new gifuctjs.GIF(buffer);
-                    await originalGIF.decompressFrames(true);
-                };
-                reader.readAsArrayBuffer(file);
+            if (file) {
+                const url = URL.createObjectURL(file);
+                const video = document.getElementById('video');
+                video.src = url;
+                document.getElementById('reverseBtn').disabled = false;
+                document.getElementById('downloadBtn').disabled = false;
             }
         });
-        
-        async function cropGIF() {
-            if (!originalGIF) return;
-            
-            const cropX = parseInt(document.getElementById('cropX').value);
-            const cropY = parseInt(document.getElementById('cropY').value);
-            const cropWidth = parseInt(document.getElementById('cropWidth').value);
-            const cropHeight = parseInt(document.getElementById('cropHeight').value);
-            
-            const gif = new GIF({
-                workers: 2,
-                quality: 10,
-                width: cropWidth,
-                height: cropHeight
-            });
-            
-            for (const frame of originalGIF.frames) {
-                if (!frame.dims) continue;
-                
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = cropWidth;
-                tempCanvas.height = cropHeight;
-                const ctx = tempCanvas.getContext('2d');
-                
-                const imgData = new ImageData(new Uint8ClampedArray(frame.patch), frame.dims.width, frame.dims.height);
-                const tempFrameCanvas = document.createElement('canvas');
-                tempFrameCanvas.width = frame.dims.width;
-                tempFrameCanvas.height = frame.dims.height;
-                const frameCtx = tempFrameCanvas.getContext('2d');
-                frameCtx.putImageData(imgData, 0, 0);
-                
-                ctx.drawImage(tempFrameCanvas, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
-                gif.addFrame(tempCanvas, { delay: frame.delay || 100 });
-            }
-            
-            gif.on('finished', function(blob) {
-                const url = URL.createObjectURL(blob);
-                document.getElementById('croppedGifPreview').src = url;
-                
-                const downloadBtn = document.getElementById('downloadBtn');
-                downloadBtn.style.display = 'block';
-                downloadBtn.onclick = function() {
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'cropped.gif';
-                    a.click();
-                };
-            });
-            
-            gif.render();
-        }
-        
-        function generateSeed() {
-            const cropX = document.getElementById('cropX').value;
-            const cropY = document.getElementById('cropY').value;
-            const cropWidth = document.getElementById('cropWidth').value;
-            const cropHeight = document.getElementById('cropHeight').value;
-            
-            const seed = btoa(`x${cropX} y${cropY} w${cropWidth} h${cropHeight}`);
-            document.getElementById('seedValue').value = seed;
-        }
-        
-        function importSeed() {
-            const seed = document.getElementById('seedValue').value;
-            try {
-                const decoded = atob(seed);
-                const values = decoded.match(/x(\d+) y(\d+) w(\d+) h(\d+)/);
-                if (values) {
-                    document.getElementById('cropX').value = values[1];
-                    document.getElementById('cropY').value = values[2];
-                    document.getElementById('cropWidth').value = values[3];
-                    document.getElementById('cropHeight').value = values[4];
-                }
-            } catch (e) {
-                alert('Invalid seed value');
-            }
-        }
+
+        document.getElementById('reverseBtn').addEventListener('click', function() {
+            const video = document.getElementById('video');
+            video.playbackRate = video.playbackRate === 1 ? -1 : 1; 
+        });
+
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            const video = document.getElementById('video');
+            const a = document.createElement('a');
+            a.href = video.src;
+            a.download = 'reversed_video.mp4';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        });
     </script>
 </body>
 </html>
