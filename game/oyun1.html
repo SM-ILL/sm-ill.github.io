@@ -19,7 +19,7 @@
     <canvas id="gifCanvas" style="border: 1px solid #000;"></canvas>
     <br><br>
     <h3>Cropped GIF Preview:</h3>
-    <canvas id="croppedGifCanvas" style="border: 1px solid #000;"></canvas>
+    <img id="croppedGifPreview" style="border: 1px solid #000; max-width: 100%;">
     <br><br>
     <button id="downloadBtn" style="display: none;">Download Cropped GIF</button>
     
@@ -58,7 +58,7 @@
             const cropWidth = parseInt(document.getElementById('cropWidth').value);
             const cropHeight = parseInt(document.getElementById('cropHeight').value);
             
-            const croppedCanvas = document.getElementById('croppedGifCanvas');
+            const croppedCanvas = document.createElement('canvas');
             const croppedCtx = croppedCanvas.getContext('2d');
             croppedCanvas.width = cropWidth;
             croppedCanvas.height = cropHeight;
@@ -79,6 +79,8 @@
             
             gif.on('finished', function(blob) {
                 const url = URL.createObjectURL(blob);
+                document.getElementById('croppedGifPreview').src = url;
+                
                 const downloadBtn = document.getElementById('downloadBtn');
                 downloadBtn.style.display = 'block';
                 downloadBtn.onclick = function() {
@@ -86,15 +88,6 @@
                     a.href = url;
                     a.download = 'cropped.gif';
                     a.click();
-                };
-                
-                const croppedGifImage = new Image();
-                croppedGifImage.src = url;
-                croppedGifImage.onload = function() {
-                    const previewCanvas = document.getElementById('croppedGifCanvas');
-                    const previewCtx = previewCanvas.getContext('2d');
-                    previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-                    previewCtx.drawImage(croppedGifImage, 0, 0);
                 };
             });
             
