@@ -1,115 +1,16 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Friday Night Funkin'</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-
-        body {
-            background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        #game-container {
-            position: relative;
-            width: 100%;
-            max-width: 1280px;
-            height: 720px;
-        }
-
-        #game-frame {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        .fullscreen-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid #00ff88;
-            border-radius: 8px;
-            padding: 10px 20px;
-            color: #00ff88;
-            cursor: pointer;
-            z-index: 1000;
-            font-family: 'Arial', sans-serif;
-        }
-    </style>
+    <title>GIF Crop Tool</title>
+    <script src="https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.min.js"></script>
 </head>
 <body>
-    <div id="game-container">
-        <iframe 
-            id="game-frame"
-            mozallowfullscreen="true" 
-            allow="autoplay; fullscreen *; microphone; camera" 
-            frameborder="0"
-            src="https://uploads.ungrounded.net/alternate/1528000/1528775_alternate_113347_r125.zip/?NewgroundsAPI_PublisherID=1&NewgroundsAPI_SandboxID=67b39451bc05a&NewgroundsAPI_SessionID=&NewgroundsAPI_UserName=%26lt%3Bdeleted%26gt%3B&NewgroundsAPI_UserID=0&ng_username=%26lt%3Bdeleted%26gt%3B"
-        ></iframe>
-    </div>
-
-    <button class="fullscreen-btn" onclick="toggleFullscreen()">Tam Ekran</button>
-
-    <script>
-        // Tam Ekran Kontrolleri
-        function toggleFullscreen() {
-            const container = document.getElementById('game-container');
-            if (!document.fullscreenElement) {
-                if (container.requestFullscreen) {
-                    container.requestFullscreen();
-                } else if (container.mozRequestFullScreen) {
-                    container.mozRequestFullScreen();
-                } else if (container.webkitRequestFullscreen) {
-                    container.webkitRequestFullscreen();
-                } else if (container.msRequestFullscreen) {
-                    container.msRequestFullscreen();
-                }
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
-        }
-
-        // Geliştirici Araçları Engelleyici
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('keydown', e => {
-            if (e.key === "F12" || 
-               (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) || 
-               (e.ctrlKey && e.key === "U")) {
-                e.preventDefault();
-            }
-        });
-
-        // Responsive Boyutlandırma
-        function resizeGame() {
-            const container = document.getElementById('game-container');
-            const aspectRatio = 16/9;
-            const windowWidth = window.innerWidth;
-            const windowHeight = window.innerHeight;
-            
-            if (windowWidth/windowHeight > aspectRatio) {
-                container.style.width = `${windowHeight * aspectRatio}px`;
-                container.style.height = `${windowHeight}px`;
-            } else {
-                container.style.width = `${windowWidth}px`;
-                container.style.height = `${windowWidth / aspectRatio}px`;
-            }
-        }
-
-        window.addEventListener('resize', resizeGame);
-        resizeGame(); // İlk yüklemede boyutlandır
-    </script>
+    <input type="file" id="gifInput" accept="image/gif">
+    <canvas id="gifCanvas" style="border: 1px solid #000;"></canvas>
+    <button id="downloadBtn">Download Cropped GIF</button>
+    
+    <script src="crop.js"></script>
 </body>
 </html>
