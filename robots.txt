@@ -1,7 +1,0 @@
-User-agent: *
-Disallow: /hisisnotatoolforcreativtysoidk
-Allow: /home
-Allow: /pngtojpg
-Allow: /qr
-Allow: /aes-256
-Sitemap: https://www.basardunyam.site/sitemap.xml
