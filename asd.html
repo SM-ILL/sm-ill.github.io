@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Collatz Hesaplayıcı</title>
   <style>
-    /* Karanlık Mod */
+    /* Karanlık mod stili */
     body {
       background-color: #121212;
       color: #fff;
@@ -19,7 +19,8 @@
       text-align: center;
       margin-bottom: 10px;
     }
-    .input-group input {
+    .input-group input,
+    .input-group label {
       padding: 5px;
       margin: 5px;
       font-size: 16px;
@@ -61,6 +62,10 @@
       text-align: center;
       margin-top: 0;
     }
+    .download-group {
+      text-align: center;
+      margin-top: 10px;
+    }
     #darkModeToggle {
       display: block;
       margin: 20px auto;
@@ -72,9 +77,12 @@
   
   <div class="input-group">
     <input type="number" id="startNumber" placeholder="Başlangıç Sayısı" min="1" />
-    <input type="text" id="endNumber" placeholder="Bitiş Sayısı ( '-' Sonsuz)" />
+    <input type="text" id="endNumber" placeholder="Bitiş Sayısı ( '-' veya boş = Sonsuz)" />
     <input type="number" id="delay" placeholder="Bekleme Süresi (ms)" min="0" value="0" />
     <input type="number" id="autoStopTime" placeholder="Otomatik Durdurma (s)" min="0" value="0" />
+    <label>
+      <input type="checkbox" id="stopOnLoop" /> Loop tespitinde dur
+    </label>
   </div>
   
   <div class="button-group">
@@ -88,13 +96,16 @@
     <div class="list-box">
       <h3>1'e Ulaşan Sayılar</h3>
       <ul id="reachedList"></ul>
-      <button onclick="downloadReached()">İndir (1'e Ulaşan)</button>
     </div>
     <div class="list-box">
       <h3>Loop (1'e Ulaşamayan) Sayılar</h3>
       <ul id="loopList"></ul>
-      <button onclick="downloadLoop()">İndir (Loop)</button>
     </div>
+  </div>
+  
+  <div class="download-group">
+    <button onclick="downloadReached()">İndir (1'e Ulaşan)</button>
+    <button onclick="downloadLoop()">İndir (Loop)</button>
   </div>
   
   <button id="darkModeToggle" onclick="toggleDarkMode()">Karanlık Modu Değiştir</button>
@@ -109,33 +120,46 @@
     let reachedOnes = [];
     let loopOnes = [];
     
+    // Anlık sayı ekranını güncelle
     function updateCurrentDisplay(num) {
       document.getElementById("currentDisplay").innerText = "Anlık Sayı: " + num;
     }
     
+    // Listeyi güncelle ve otomatik kaydır
     function updateList(listId, listData) {
-      document.getElementById(listId).innerHTML =
-        listData.map(item => "<li>" + item + "</li>").join("");
+      let element = document.getElementById(listId);
+      element.innerHTML = listData.map(item => "<li>" + item + "</li>").join("");
+      element.scrollTop = element.scrollHeight;
     }
     
-    // Verilen sayının Collatz dizisini hesaplar.
-    // Eğer 1'e ulaşırsa "ones", döngü tespit edilirse "loop" döner.
+    // Belirtilen sayının Collatz dizisini hesaplar.
+    // Eğer 1’e ulaşırsa "ones", döngü tespit edilirse "loop" döner.
     async function processCollatz(num) {
       let n = num;
       let seen = new Set();
+      let counter = 0;
       while (n !== 1 && !seen.has(n)) {
         seen.add(n);
         n = (n % 2 === 0) ? n / 2 : 3 * n + 1;
-        await new Promise(resolve => setTimeout(resolve, 0));
+        counter++;
+        if (delay > 0) {
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          // Delay 0 ise, her 100 iterasyonda bir küçük bir yield veriyoruz
+          if (counter % 100 === 0) {
+            await Promise.resolve();
+          }
+        }
       }
       return (n === 1) ? "ones" : "loop";
     }
     
-    // Başlangıç sayısından bitiş sayısına kadar tüm sayıları işleyen asenkron döngü.
+    // Başlangıç sayısından bitiş sayısına kadar işleyen ana asenkron döngü
     async function processRange() {
       processing = true;
       document.getElementById("pauseResumeBtn").disabled = false;
-      // Otomatik durdurma ayarı (saniye cinsinden, 0 ise kapalı)
+      
+      // Otomatik durdurma ayarı (eğer autoStopTime > 0 ise)
       if (autoStopTime > 0) {
         autoStopTimer = setTimeout(() => {
           paused = true;
@@ -143,8 +167,10 @@
           alert("Otomatik durdurma süresi doldu.");
         }, autoStopTime * 1000);
       }
+      
+      // Sonsuz mod için endNumber Infinity olacak
       for (let i = currentIndex; processing && (i <= endNumber || endNumber === Infinity); i++) {
-        // Duraklatılmışsa, devam edene kadar bekle
+        // Eğer duraklatılmışsa, devam edene kadar bekle
         while (paused && processing) {
           await new Promise(resolve => setTimeout(resolve, 100));
         }
@@ -156,12 +182,20 @@
         } else {
           loopOnes.push(i);
           updateList("loopList", loopOnes);
+          // "Loop tespitinde dur" seçeneği işaretliyse işlemi durdur
+          if (document.getElementById("stopOnLoop").checked) {
+            alert("Loop tespit edildi: " + i + ". İşlem durduruldu.");
+            processing = false;
+            break;
+          }
         }
         currentIndex = i + 1;
         if (delay > 0) {
           await new Promise(resolve => setTimeout(resolve, delay));
         } else {
-          await new Promise(resolve => requestIdleCallback(resolve));
+          if (i % 100 === 0) {
+            await Promise.resolve();
+          }
         }
       }
       processing = false;
@@ -170,7 +204,7 @@
       updateCurrentDisplay("Tamamlandı!");
     }
     
-    // Başlat/Sıfırla butonuna basıldığında: eğer işlem devam ediyorsa sıfırlar, yoksa başlatır.
+    // Başlat/Sıfırla butonunun işlevi: işlem devam ediyorsa sıfırlıyor, yoksa başlatıyor.
     function startResetProcess() {
       if (processing) {
         processing = false;
@@ -216,7 +250,7 @@
       btn.innerText = paused ? "Devam Et" : "Durdur";
     }
     
-    // 1'e ulaşan sayıların indirilmesi
+    // 1'e ulaşan sayıların TXT olarak indirilmesi
     function downloadReached() {
       let data = reachedOnes.join("\n");
       let blob = new Blob([data], { type: "text/plain" });
@@ -228,7 +262,7 @@
       URL.revokeObjectURL(url);
     }
     
-    // Loop (1'e ulaşamayan) sayıların indirilmesi
+    // Loop (1'e ulaşamayan) sayıların TXT olarak indirilmesi
     function downloadLoop() {
       let data = loopOnes.join("\n");
       let blob = new Blob([data], { type: "text/plain" });
