@@ -3,181 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Collatz Algoritması</title>
+    <title>Collatz Hesaplayıcı</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
-        textarea { width: 45%; height: 200px; margin: 10px; overflow-y: scroll; }
-        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        /* Karanlık Mod */
+        body {
+            background-color: #121212;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin: 0 10px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        #output {
+            margin-top: 20px;
+            font-size: 18px;
+            white-space: pre-wrap;
+        }
+        .input-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .input-container input {
+            padding: 10px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        #darkModeToggle {
+            margin-top: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-    <h2>Collatz Algoritması</h2>
-    
-    <label>Başlangıç:</label>
-    <input type="number" id="startNumber" value="1" min="1">
-    
-    <label>Bitiş:</label>
-    <input type="text" id="endNumber" value="10">
+    <h1>Collatz Hesaplayıcı</h1>
+    <div class="input-container">
+        <input type="number" id="startNumber" placeholder="Başlangıç Sayısı" />
+        <input type="number" id="endNumber" placeholder="Bitiş Sayısı (- Sonsuz)" />
+        <button onclick="startCollatz()">Başlat</button>
+    </div>
 
-    <label>Duraklatma Süresi (ms) (0 = kapalı):</label>
-    <input type="number" id="delay" value="1000" min="0">
+    <div class="button-container">
+        <button id="toggle" onclick="startStop()">Başlat</button>
+        <button onclick="reset()">Sıfırla</button>
+    </div>
 
-    <br>
-    <label>Otomatik Durdurma Süresi (s) (0 = kapalı):</label>
-    <input type="number" id="autoStopTime" value="0" min="0">
+    <div id="output"></div>
 
-    <br>
-    <input type="checkbox" id="stopOnNewNotOne">
-    <label>1 Olmayan Yeni Bir Sayı Gelirse Durdur</label>
-
-    <br><br>
-    <button id="startBtn" onclick="toggleCollatz()">Başlat</button>
-    <button id="pauseBtn" onclick="pauseResumeCollatz()" disabled>Durdur</button>
-
-    <h3>Anlık: <span id="currentNumber">-</span></h3>
-
-    <h3>1'e Ulaşanlar</h3>
-    <textarea id="ones" readonly></textarea>
-    <br>
-    <button onclick="downloadFile('ones')">1 Olanları İndir</button>
-
-    <h3>Loop'a Girenler</h3>
-    <textarea id="notOnes" readonly></textarea>
-    <br>
-    <button onclick="downloadFile('notOnes')">1 Olmayanları İndir</button>
+    <button id="darkModeToggle" onclick="toggleDarkMode()">Karanlık Modu Değiştir</button>
 
     <script>
-        let stopProcessing = false;
-        let isPaused = false;
+        let running = false;
         let currentNumber = 1;
-        let notOnesSet = new Set();
-        let autoStopTimeout = null;
+        let delay = 0;
+        let stopWhenLoopDetected = false;
+        let visitedNumbers = new Set();
+        let isDarkMode = true;
 
-        function collatz(n) {
-            let seen = new Set();
-            while (n !== 1 && !seen.has(n)) {
-                seen.add(n);
-                n = (n % 2 === 0) ? n / 2 : 3 * n + 1;
-            }
-            return (n === 1) ? "ones" : "notOnes";
-        }
+        async function collatz(n) {
+            currentNumber = n;
+            visitedNumbers.clear();
+            running = true;
+            updateButtons();
+            document.getElementById("output").innerText = `Başlangıç: ${n}\n`;
 
-        async function toggleCollatz() {
-            let startBtn = document.getElementById("startBtn");
-            let pauseBtn = document.getElementById("pauseBtn");
-
-            if (startBtn.innerText === "Sıfırla") {
-                resetProcess();
-                return;
-            }
-
-            stopProcessing = false;
-            isPaused = false;
-            pauseBtn.disabled = false;
-            pauseBtn.innerText = "Durdur";
-
-            startBtn.innerText = "Sıfırla";
-
-            let start = parseInt(document.getElementById("startNumber").value);
-            let end = document.getElementById("endNumber").value.trim();
-            let delay = parseInt(document.getElementById("delay").value);
-            let stopOnNew = document.getElementById("stopOnNewNotOne").checked;
-            let autoStopTime = parseInt(document.getElementById("autoStopTime").value);
-
-            if (isNaN(start) || start < 1) {
-                alert("Lütfen geçerli bir başlangıç sayısı girin!");
-                return;
-            }
-
-            let onesList = document.getElementById("ones");
-            let notOnesList = document.getElementById("notOnes");
-
-            if (autoStopTime > 0) {
-                autoStopTimeout = setTimeout(() => {
-                    stopProcessing = true;
-                    pauseBtn.disabled = true;
-                    pauseBtn.innerText = "Durdur";
-                    startBtn.innerText = "Başlat";
-                    document.getElementById("currentNumber").innerText = "Otomatik durdu!";
-                    alert("Otomatik durdurma süresi doldu!");
-                }, autoStopTime * 1000);
-            }
-
-            let i = start;
-            while (!stopProcessing) {
-                document.getElementById("currentNumber").innerText = i;
-                currentNumber = i;
-
-                let result = collatz(i);
-                if (result === "ones") {
-                    onesList.value += i + "\n";
-                    onesList.scrollTop = onesList.scrollHeight;
-                } else {
-                    if (!notOnesSet.has(i)) {
-                        notOnesSet.add(i);
-                        notOnesList.value += i + "\n";
-                        notOnesList.scrollTop = notOnesList.scrollHeight;
-                        if (stopOnNew) {
-                            alert(`Yeni bir loop sayısı bulundu: ${i}. İşlem durduruldu.`);
-                            stopProcessing = true;
-                            isPaused = true;
-                            pauseBtn.disabled = true;
-                            return;
-                        }
-                    }
+            while (running) {
+                if (visitedNumbers.has(n)) {
+                    document.getElementById("output").innerText += `Loop detected at ${n}!\n`;
+                    break;
                 }
+                visitedNumbers.add(n);
 
-                if (end !== "-" && i >= parseInt(end)) break;
+                // **Sonucu ekrana yaz**
+                document.getElementById("output").innerText += `${n}\n`;
+
+                if (n === 1) break;
+                n = n % 2 === 0 ? n / 2 : 3 * n + 1;
+
+                // **Bekleme mekanizması**
                 if (delay > 0) await new Promise(resolve => setTimeout(resolve, delay));
-
-                i++;
+                else await new Promise(resolve => requestIdleCallback(resolve));
             }
 
-            document.getElementById("currentNumber").innerText = "Tamamlandı!";
-            startBtn.innerText = "Başlat";
-            pauseBtn.disabled = true;
-            pauseBtn.innerText = "Durdur";
+            running = false;
+            updateButtons();
         }
 
-        function pauseResumeCollatz() {
-            let pauseBtn = document.getElementById("pauseBtn");
-
-            if (!isPaused) {
-                stopProcessing = true;
-                isPaused = true;
-                pauseBtn.innerText = "Devam";
-                document.getElementById("currentNumber").innerText = "Durduruldu!";
+        function startStop() {
+            if (running) {
+                running = false;
             } else {
-                stopProcessing = false;
-                isPaused = false;
-                pauseBtn.innerText = "Durdur";
-                toggleCollatz();
+                collatz(currentNumber);
+            }
+            updateButtons();
+        }
+
+        function updateButtons() {
+            let btn = document.getElementById("toggle");
+            btn.textContent = running ? "Durdur" : "Devam Et";
+        }
+
+        function startCollatz() {
+            let startNum = parseInt(document.getElementById("startNumber").value);
+            let endNum = document.getElementById("endNumber").value;
+            
+            if (endNum === "-") {
+                endNum = Infinity; // Sonsuz döngü
+            } else {
+                endNum = parseInt(endNum);
+            }
+
+            if (startNum && !isNaN(startNum)) {
+                currentNumber = startNum;
+                collatz(currentNumber);
+            } else {
+                alert("Lütfen geçerli bir sayı girin.");
             }
         }
 
-        function resetProcess() {
-            stopProcessing = true;
-            isPaused = false;
-            document.getElementById("startBtn").innerText = "Başlat";
-            document.getElementById("pauseBtn").disabled = true;
-            document.getElementById("pauseBtn").innerText = "Durdur";
-            document.getElementById("currentNumber").innerText = "-";
-            document.getElementById("ones").value = "";
-            document.getElementById("notOnes").value = "";
-            notOnesSet.clear();
-            if (autoStopTimeout) clearTimeout(autoStopTimeout);
+        function reset() {
+            document.getElementById("startNumber").value = '';
+            document.getElementById("endNumber").value = '';
+            document.getElementById("output").innerText = '';
+            visitedNumbers.clear();
         }
 
-        function downloadFile(type) {
-            let text = document.getElementById(type).value;
-            let blob = new Blob([text], { type: "text/plain" });
-            let link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = type + ".txt";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.body.style.backgroundColor = isDarkMode ? '#121212' : '#fff';
+            document.body.style.color = isDarkMode ? '#fff' : '#000';
+            document.getElementById("darkModeToggle").style.backgroundColor = isDarkMode ? '#333' : '#ddd';
         }
     </script>
 
