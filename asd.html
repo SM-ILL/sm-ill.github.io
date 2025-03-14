@@ -58,11 +58,24 @@
             color: #fff;
             cursor: pointer;
         }
+        .list-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+        .list-container div {
+            width: 40%;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #fff;
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
 
     <h1>Collatz Hesaplayıcı</h1>
+    
     <div class="input-container">
         <input type="number" id="startNumber" placeholder="Başlangıç Sayısı" />
         <input type="number" id="endNumber" placeholder="Bitiş Sayısı (- Sonsuz)" />
@@ -76,7 +89,19 @@
 
     <div id="output"></div>
 
+    <div class="list-container">
+        <div>
+            <h3>1'e Ulaşan Sayılar</h3>
+            <ul id="reachedOnes"></ul>
+        </div>
+        <div>
+            <h3>1'e Ulaşamayan Sayılar</h3>
+            <ul id="notReachedOnes"></ul>
+        </div>
+    </div>
+
     <button id="darkModeToggle" onclick="toggleDarkMode()">Karanlık Modu Değiştir</button>
+    <button id="downloadCsv" onclick="downloadCSV()">CSV İndir</button>
 
     <script>
         let running = false;
@@ -84,6 +109,8 @@
         let delay = 0;
         let stopWhenLoopDetected = false;
         let visitedNumbers = new Set();
+        let reachedOnes = [];
+        let notReachedOnes = [];
         let isDarkMode = true;
 
         async function collatz(n) {
@@ -96,14 +123,20 @@
             while (running) {
                 if (visitedNumbers.has(n)) {
                     document.getElementById("output").innerText += `Loop detected at ${n}!\n`;
+                    notReachedOnes.push(n);
+                    updateLists();
                     break;
                 }
                 visitedNumbers.add(n);
 
-                // **Sonucu ekrana yaz**
-                document.getElementById("output").innerText += `${n}\n`;
+                // **Anlık sayıyı ekrana yaz**
+                document.getElementById("output").innerText = `Anlık Sayı: ${n}\n`;
 
-                if (n === 1) break;
+                if (n === 1) {
+                    reachedOnes.push(n);
+                    updateLists();
+                    break;
+                }
                 n = n % 2 === 0 ? n / 2 : 3 * n + 1;
 
                 // **Bekleme mekanizması**
@@ -129,6 +162,12 @@
             btn.textContent = running ? "Durdur" : "Devam Et";
         }
 
+        function updateLists() {
+            // Güncellenen sayıları HTML listelerine aktar
+            document.getElementById("reachedOnes").innerHTML = reachedOnes.map(item => `<li>${item}</li>`).join('');
+            document.getElementById("notReachedOnes").innerHTML = notReachedOnes.map(item => `<li>${item}</li>`).join('');
+        }
+
         function startCollatz() {
             let startNum = parseInt(document.getElementById("startNumber").value);
             let endNum = document.getElementById("endNumber").value;
@@ -152,6 +191,9 @@
             document.getElementById("endNumber").value = '';
             document.getElementById("output").innerText = '';
             visitedNumbers.clear();
+            reachedOnes = [];
+            notReachedOnes = [];
+            updateLists();
         }
 
         function toggleDarkMode() {
@@ -159,6 +201,19 @@
             document.body.style.backgroundColor = isDarkMode ? '#121212' : '#fff';
             document.body.style.color = isDarkMode ? '#fff' : '#000';
             document.getElementById("darkModeToggle").style.backgroundColor = isDarkMode ? '#333' : '#ddd';
+        }
+
+        function downloadCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "1'e Ulaşan Sayılar\n" + reachedOnes.join("\n") + "\n";
+            csvContent += "1'e Ulaşamayan Sayılar\n" + notReachedOnes.join("\n");
+
+            // CSV dosyasını indir
+            let encodedUri = encodeURI(csvContent);
+            let link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "collatz_sonuclar.csv");
+            link.click();
         }
     </script>
 
