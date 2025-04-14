@@ -1,31 +1,44 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>404 - Sayfa Bulunamadı</title>
-  <style>
-    :root{--bg-color:#0d1117;--text-color:#c9d1d9;--accent-color:#58a6ff;--button-bg:#21262d;--button-hover:#30363d}
-    body.light{--bg-color:#f4f4f4;--text-color:#1f2937;--accent-color:#2563eb;--button-bg:#e5e7eb;--button-hover:#d1d5db}
-    body{margin:0;background-color:var(--bg-color);color:var(--text-color);font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;text-align:center;padding:16px}
-    h1{font-size:4rem;margin:0;color:var(--accent-color)}
-    p{font-size:1.2rem;margin:16px 0;color:var(--text-color)}
-    .button{padding:12px 24px;margin:8px;border:none;border-radius:12px;background-color:var(--button-bg);color:var(--text-color);font-size:1rem;cursor:pointer;transition:background 0.2s}
-    .button:hover{background-color:var(--button-hover)}
-    #homeLink{text-decoration:none;color:var(--text-color);font-size:1.2rem}
-    .button:hover #homeLink{color:var(--accent-color)}
-    .themeToggle{margin-top:24px}
-    #nukeMessage{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:2em;text-align:center}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>404 - Sayfa Bulunamadı</title>
+<style>
+:root{--bg-color:#0d1117;--text-color:#c9d1d9;--accent-color:#58a6ff;--button-bg:#21262d;--button-hover:#30363d}
+body.light{--bg-color:#f4f4f4;--text-color:#1f2937;--accent-color:#2563eb;--button-bg:#e5e7eb;--button-hover:#d1d5db}
+body{margin:0;background-color:var(--bg-color);color:var(--text-color);font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;text-align:center;padding:16px;user-select:none;-webkit-user-select:none}
+h1{font-size:4rem;margin:0;color:var(--accent-color)}
+p{font-size:1.2rem;margin:16px 0}
+.button{padding:12px 24px;margin:8px;border:none;border-radius:12px;background-color:var(--button-bg);color:var(--text-color);font-size:1rem;cursor:pointer;transition:background 0.2s}
+.button:hover{background-color:var(--button-hover)}
+#nukeMessage{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:2em;text-align:center;color:#ff4444}
+</style>
 </head>
 <body>
-  <h1>404</h1>
-  <p>Üzgünüz, aradığınız sayfa bulunamadı!</p>
-  <a href="/" class="button" id="homeLink">Ana Sayfaya Dön</a>
-  <div id="nukeMessage">İZİNSİZ ERİŞİM ENGELLENDİ!</div>
+<h1>404</h1>
+<p>Üzgünüz, aradığınız sayfa bulunamadı!</p>
+<a href="/" class="button">Ana Sayfaya Dön</a>
+<div id="nukeMessage">malesef</div>
 
 <script>
-(function(){const n=()=>{document.body.innerHTML='',document.body.style.background='black',document.getElementById('nukeMessage').style.display='block',setInterval(()=>window.location.reload(),500)},a=()=>{const e=document.createElement('div');e.innerHTML=' ',e.className='adsbox',document.body.appendChild(e),setTimeout(()=>{0===e.offsetHeight&&n(),e.remove()},50)},c=e=>{const t=[e.ctrlKey&&'i'===e.key,e.ctrlKey&&'j'===e.key,e.ctrlKey&&'c'===e.key,e.shiftKey&&e.ctrlKey&&'c'===e.key,'f12'===e.key,e.metaKey&&e.altKey&&'i'===e.key];t.some(t=>t)&&(e.preventDefault(),e.stopPropagation(),n())};setInterval(()=>{try{(window.outerWidth-window.innerWidth>200||window.outerHeight-window.innerHeight>200||/firebug|webinspector|chromelogging|blackbox|\.apply\(|debugger|toString\.\(\+\)/.test(document.body.innerHTML))&&n(),a()}catch(e){n()}},300),document.addEventListener('contextmenu',e=>e.preventDefault()),document.addEventListener('keydown',c),Object.defineProperty(window,'console',{value:new Proxy(console,{get:(e,t)=>{return'log'===t||'debug'===t?()=>{}:e[t]}}))})();
+(()=>{
+const n=()=>{document.body.innerHTML='',document.body.style.background='#000',document.getElementById('nukeMessage').style.display='block',setInterval(()=>location.reload(),300)},
+d=()=>{const e=document.createElement('script');e.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js',e.onerror=n,document.head.append(e)},
+k=e=>{const t=[e.ctrlKey&&e.code==='KeyI',e.ctrlKey&&e.code==='KeyJ',e.ctrlKey&&e.shiftKey&&e.code==='KeyC',e.code==='F12',e.metaKey&&e.altKey&&e.code==='KeyI'];t.some(t=>t)&&(e.preventDefault(),e.stopImmediatePropagation(),n())};
+setInterval(()=>{
+try{
+if(window.outerWidth-window.innerWidth>160||window.outerHeight-window.innerHeight>160||
+document.documentElement.getAttribute('debug')||
+document.documentElement.getAttribute('firebug'))throw n();
+new Function('debugger')();
+d();
+}catch(e){n()}
+},200);
+document.addEventListener('keydown',k);
+document.addEventListener('contextmenu',e=>e.preventDefault());
+window.console={log:()=>{},warn:()=>{},error:()=>{},debug:()=>{}};
+})();
 </script>
 </body>
 </html>
