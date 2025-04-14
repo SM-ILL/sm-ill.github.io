@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Typing Flow</title>
   <style>
     :root {
       --bg-color: #0d1117;
       --text-color: #c9d1d9;
       --accent-color: #58a6ff;
+      --correct-color: #2ea043;
+      --wrong-color: #f85149;
       --button-bg: #21262d;
       --button-hover: #30363d;
     }
@@ -31,17 +33,7 @@
       justify-content: center;
       min-height: 100vh;
       flex-direction: column;
-      text-align: center;
       padding: 16px;
-      user-select: none;
-      -webkit-user-select: none;
-      transition: background-color 0.3s, color 0.3s;
-    }
-
-    h1 {
-      font-size: 4rem;
-      margin: 0;
-      color: var(--accent-color);
     }
 
     .button {
@@ -53,250 +45,184 @@
       color: var(--text-color);
       font-size: 1rem;
       cursor: pointer;
-      transition: background-color 0.2s, color 0.2s;
+      transition: background 0.2s;
     }
 
     .button:hover {
       background-color: var(--button-hover);
     }
 
-    #game {
-      display: none;
-      width: 100%;
-      max-width: 600px;
+    .active {
+      outline: 2px solid var(--accent-color);
     }
 
-    #currentWord {
+    .word {
       font-size: 2rem;
-      letter-spacing: 0.2em;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
     }
 
-    .letter.correct {
-      color: green;
+    .letter {
+      padding: 0 2px;
     }
 
-    .letter.wrong {
-      color: red;
+    .correct {
+      color: var(--correct-color);
     }
 
-    .themeToggle {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 1000;
+    .wrong {
+      color: var(--wrong-color);
     }
 
-    #hint {
-      opacity: 0;
-      transition: opacity 0.5s ease;
-      margin-top: 10px;
-      font-size: 1rem;
+    .counter {
+      font-family: monospace;
+      font-size: 1.2rem;
+      margin-top: 16px;
       color: var(--accent-color);
     }
 
-    #hint.show {
-      opacity: 1;
-      animation: pulse 1s infinite;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
-
-    #nukeMessage {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 2em;
-      text-align: center;
-      color: #ff4444;
-      background-color: black;
-      padding: 1em 2em;
-      border-radius: 12px;
-      z-index: 2000;
+    @media (max-width: 600px) {
+      .word {
+        font-size: 1.5rem;
+      }
+      .button {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Typing Flow</h1>
-  <button class="button" id="tr">Türkçe</button>
-  <button class="button" id="en">English</button>
-  <div id="game">
-    <p id="currentWord"></p>
-    <p>Kelime Sayacı: <span id="counter">0</span></p>
-    <p id="hint">Kelimeyi yazdıktan sonra boşluk tuşuna bas</p>
+  <div id="menu">
+    <h1 style="text-align:center">Typing Flow</h1>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center">
+      <button class="button" id="tr">Türkçe</button>
+      <button class="button" id="en">English</button>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center">
+      <button class="button" id="start">Başlat</button>
+      <button class="button" id="themeToggle">Tema Değiştir</button>
+    </div>
   </div>
-  <button class="button themeToggle" id="themeToggle">Tema</button>
-  <div id="nukeMessage">yok knk değmez</div>
-  <script>
-    (() => {
-      let turkishWords = []
-      let englishWords = []
-      let currentWord = ""
-      let wordList = []
-      let buffer = ""
-      let correctCount = 0
-      let lang = "tr"
-      let usedWords = []
-      let idleTimeout
-      let nuked = false
-      const trBtn = document.getElementById("tr")
-      const enBtn = document.getElementById("en")
-      const themeToggle = document.getElementById("themeToggle")
-      const currentWordEl = document.getElementById("currentWord")
-      const counterEl = document.getElementById("counter")
-      const game = document.getElementById("game")
-      const hint = document.getElementById("hint")
-      const nukeMessage = document.getElementById("nukeMessage")
 
-      trBtn.onclick = () => {
-        lang = "tr"
-        wordList = turkishWords
-        startGame()
+  <div id="game" style="display:none; text-align:center;">
+    <div class="word" id="currentWord"></div>
+    <p style="color:gray; font-size: 0.9rem;">(Boşluk tuşuna bastığında kontrol edilir)</p>
+    <div class="counter">Doğru Yazılan: <span id="counter">0</span></div>
+  </div>
+
+<script>
+  let turkishWords = [];
+  let englishWords = [];
+  let currentWord = "";
+  let wordList = [];
+  let currentIndex = 0;
+  let buffer = "";
+  let correctCount = 0;
+
+  const trBtn = document.getElementById("tr");
+  const enBtn = document.getElementById("en");
+  const startBtn = document.getElementById("start");
+  const themeToggle = document.getElementById("themeToggle");
+  const menu = document.getElementById("menu");
+  const game = document.getElementById("game");
+  const currentWordEl = document.getElementById("currentWord");
+  const counterEl = document.getElementById("counter");
+
+  let lang = "tr";
+  let usedWords = []; // Yeni array, kullanılan kelimeleri tutacak
+
+  trBtn.onclick = () => {
+    lang = "tr";
+    trBtn.classList.add("active");
+    enBtn.classList.remove("active");
+  };
+
+  enBtn.onclick = () => {
+    lang = "en";
+    enBtn.classList.add("active");
+    trBtn.classList.remove("active");
+  };
+
+  startBtn.onclick = () => {
+    wordList = lang === "tr" ? turkishWords : englishWords;
+    if (wordList.length === 0) {
+      alert("Kelime listesi yüklenemedi.");
+      return;
+    }
+    menu.style.display = "none";
+    game.style.display = "block";
+    currentIndex = 0;
+    correctCount = 0;
+    buffer = "";
+    usedWords = [];
+    updateWord();
+  };
+
+  themeToggle.onclick = () => {
+    document.body.classList.toggle("light");
+  };
+
+  function updateWord() {
+    let randomIndex = Math.floor(Math.random() * wordList.length);
+    currentWord = wordList[randomIndex];
+
+    while (usedWords.includes(currentWord)) {
+      randomIndex = Math.floor(Math.random() * wordList.length);
+      currentWord = wordList[randomIndex];
+    }
+
+    usedWords.push(currentWord);
+    renderWord();
+  }
+
+  function renderWord() {
+    currentWordEl.innerHTML = "";
+    for (let i = 0; i < currentWord.length; i++) {
+      const span = document.createElement("span");
+      span.textContent = currentWord[i];
+      span.classList.add("letter");
+      if (buffer[i]) {
+        span.classList.add(buffer[i] === currentWord[i] ? "correct" : "wrong");
       }
+      currentWordEl.appendChild(span);
+    }
+  }
 
-      enBtn.onclick = () => {
-        lang = "en"
-        wordList = englishWords
-        startGame()
+  window.addEventListener("keydown", (e) => {
+    if (game.style.display !== "block") return;
+    if (e.key === " ") {
+      e.preventDefault();
+      if (buffer.trim() === currentWord) {
+        correctCount++;
       }
+      counterEl.textContent = correctCount;
+      buffer = "";
+      currentIndex++;
+      updateWord();
+    } else if (/^[a-zA-ZçÇğĞıİöÖşŞüÜ]$/.test(e.key)) {
+      buffer += e.key;
+      renderWord();
+    } else if (e.key === "Backspace") {
+      buffer = buffer.slice(0, -1);
+      renderWord();
+    }
+  });
 
-      themeToggle.onclick = () => {
-        document.body.classList.toggle("light")
-        updateStyles()
-      }
+  async function loadWords() {
+    try {
+      const tr = await fetch('turkce.txt');
+      const en = await fetch('english.txt');
+      turkishWords = (await tr.text()).split('\n').map(w => w.trim()).filter(w => w);
+      englishWords = (await en.text()).split('\n').map(w => w.trim()).filter(w => w);
+    } catch (err) {
+      console.error("Dosyalar yüklenemedi", err);
+    }
+  }
 
-      function updateStyles() {
-        const buttons = document.querySelectorAll('.button')
-        buttons.forEach(btn => {
-          btn.style.backgroundColor = getComputedStyle(document.body).getPropertyValue('--button-bg')
-          btn.style.color = getComputedStyle(document.body).getPropertyValue('--text-color')
-        })
-        document.body.style.color = getComputedStyle(document.body).getPropertyValue('--text-color')
-        document.body.style.backgroundColor = getComputedStyle(document.body).getPropertyValue('--bg-color')
-      }
+  loadWords();
+</script>
 
-      function startGame() {
-        if (wordList.length === 0) return alert("Kelime listesi yüklenemedi.")
-        game.style.display = "block"
-        correctCount = 0
-        buffer = ""
-        usedWords = []
-        counterEl.textContent = correctCount
-        nextWord()
-      }
-
-      function nextWord() {
-        clearTimeout(idleTimeout)
-        hint.classList.remove("show")
-        if (usedWords.length >= wordList.length) usedWords = []
-        do {
-          currentWord = wordList[Math.floor(Math.random() * wordList.length)]
-        } while (usedWords.includes(currentWord))
-        usedWords.push(currentWord)
-        renderWord()
-        buffer = ""
-        idleTimeout = setTimeout(() => {
-          hint.classList.add("show")
-        }, 5000)
-      }
-
-      function renderWord() {
-        currentWordEl.innerHTML = ""
-        for (let i = 0; i < currentWord.length; i++) {
-          const span = document.createElement("span")
-          span.textContent = currentWord[i]
-          span.classList.add("letter")
-          if (buffer[i]) {
-            span.classList.add(buffer[i] === currentWord[i] ? "correct" : "wrong")
-          }
-          currentWordEl.appendChild(span)
-        }
-      }
-
-      window.addEventListener("keydown", (e) => {
-        if (game.style.display !== "block" || nuked) return
-        clearTimeout(idleTimeout)
-        hint.classList.remove("show")
-        if (e.key === " ") {
-          e.preventDefault()
-          if (buffer.trim() === currentWord) correctCount++
-          counterEl.textContent = correctCount
-          nextWord()
-        } else if (/^[a-zA-ZçÇğĞıİöÖşŞüÜ]$/.test(e.key)) {
-          buffer += e.key
-          renderWord()
-        } else if (e.key === "Backspace") {
-          buffer = buffer.slice(0, -1)
-          renderWord()
-        }
-      })
-
-      async function loadWords() {
-        try {
-          const tr = await fetch('turkce.txt')
-          const en = await fetch('english.txt')
-          turkishWords = (await tr.text()).split('\n').map(w => w.trim()).filter(w => w)
-          englishWords = (await en.text()).split('\n').map(w => w.trim()).filter(w => w)
-        } catch (err) {
-          console.error("Dosyalar yüklenemedi")
-        }
-      }
-
-      loadWords()
-
-      const n = () => {
-        if (nuked) return
-        nuked = true
-        document.body.innerHTML = ''
-        document.body.style.background = '#000'
-        document.body.appendChild(nukeMessage)
-        nukeMessage.style.display = 'block'
-        setInterval(() => location.reload(), 300)
-      }
-
-      const d = () => {
-        const e = document.createElement('script')
-        e.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'
-        e.onerror = n
-        document.head.append(e)
-      }
-
-      const k = (e) => {
-        const t = [
-          e.ctrlKey && e.code === 'KeyI',
-          e.ctrlKey && e.code === 'KeyJ',
-          e.ctrlKey && e.shiftKey && e.code === 'KeyC',
-          e.code === 'F12',
-          e.metaKey && e.altKey && e.code === 'KeyI'
-        ]
-        if (t.some(t => t)) {
-          e.preventDefault()
-          e.stopImmediatePropagation()
-          n()
-        }
-      }
-
-      setInterval(() => {
-        try {
-          if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160 ||
-            document.documentElement.getAttribute('debug') ||
-            document.documentElement.getAttribute('firebug')) throw n()
-          new Function('debugger')()
-          d()
-        } catch (e) {
-          n()
-        }
-      }, 200)
-
-      document.addEventListener('keydown', k)
-      document.addEventListener('contextmenu', e => e.preventDefault())
-      window.console = { log: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
-    })()
-  </script>
 </body>
 </html>
