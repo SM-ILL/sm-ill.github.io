@@ -1,99 +1,227 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Typing Flow</title>
-<style>
-:root{--bg-color:#0d1117;--text-color:#c9d1d9;--accent-color:#58a6ff;--correct-color:#2ea043;--wrong-color:#f85149;--button-bg:#21262d;--button-hover:#30363d}
-body.light{--bg-color:#f4f4f4;--text-color:#1f2937;--accent-color:#2563eb;--button-bg:#e5e7eb;--button-hover:#d1d5db}
-body{margin:0;background-color:var(--bg-color);color:var(--text-color);font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;padding:16px;user-select:none}
-.button{padding:12px 24px;margin:8px;border:none;border-radius:12px;background-color:var(--button-bg);color:var(--text-color);font-size:1rem;cursor:pointer;transition:background 0.2s}
-.button:hover{background-color:var(--button-hover)}
-.active{outline:2px solid var(--accent-color)}
-.word{font-size:2rem;display:flex;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
-.letter{padding:0 2px;position:relative}
-.correct{color:var(--correct-color)}
-.wrong{color:var(--wrong-color);text-decoration:underline}
-.counter{font-family:monospace;font-size:1.2rem;margin-top:16px;color:var(--accent-color)}
-#nukeMessage{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:2em;text-align:center;color:#ff4444}
-@media (max-width:600px){.word{font-size:1.5rem}.button{width:100%}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Typing Flow</title>
+  <style>
+    :root {
+      --bg-color: #0d1117;
+      --text-color: #c9d1d9;
+      --accent-color: #58a6ff;
+      --correct-color: #2ea043;
+      --wrong-color: #f85149;
+      --button-bg: #21262d;
+      --button-hover: #30363d;
+    }
+
+    body.light {
+      --bg-color: #f4f4f4;
+      --text-color: #1f2937;
+      --accent-color: #2563eb;
+      --button-bg: #e5e7eb;
+      --button-hover: #d1d5db;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      flex-direction: column;
+      padding: 16px;
+    }
+
+    .button {
+      padding: 12px 24px;
+      margin: 8px;
+      border: none;
+      border-radius: 12px;
+      background-color: var(--button-bg);
+      color: var(--text-color);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .button:hover {
+      background-color: var(--button-hover);
+    }
+
+    .active {
+      outline: 2px solid var(--accent-color);
+    }
+
+    .word {
+      font-size: 2rem;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .letter {
+      padding: 0 2px;
+    }
+
+    .correct {
+      color: var(--correct-color);
+    }
+
+    .wrong {
+      color: var(--wrong-color);
+    }
+
+    .counter {
+      font-family: monospace;
+      font-size: 1.2rem;
+      margin-top: 16px;
+      color: var(--accent-color);
+    }
+
+    @media (max-width: 600px) {
+      .word {
+        font-size: 1.5rem;
+      }
+      .button {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-<div id="menu">
-<h1 style="text-align:center">Typing Flow</h1>
-<div style="display:flex;flex-wrap:wrap;justify-content:center">
-<button class="button" id="tr">Türkçe</button>
-<button class="button" id="en">English</button>
-</div>
-<div style="display:flex;flex-wrap:wrap;justify-content:center">
-<button class="button" id="start">Başlat</button>
-<button class="button" id="themeToggle">Tema Değiştir</button>
-</div>
-</div>
+  <div id="menu">
+    <h1 style="text-align:center">Typing Flow</h1>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center">
+      <button class="button" id="tr">Türkçe</button>
+      <button class="button" id="en">English</button>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; justify-content:center">
+      <button class="button" id="start">Başlat</button>
+      <button class="button" id="themeToggle">Tema Değiştir</button>
+    </div>
+  </div>
 
-<div id="game" style="display:none;text-align:center">
-<div class="word" id="currentWord"></div>
-<p style="color:gray;font-size:0.9rem">(Boşluk tuşuna basarak kontrol edin)</p>
-<div class="counter">Doğru: <span id="counter">0</span></div>
-</div>
-<div id="nukeMessage">olmaz</div>
+  <div id="game" style="display:none; text-align:center;">
+    <div class="word" id="currentWord"></div>
+    <p style="color:gray; font-size: 0.9rem;">(Boşluk tuşuna bastığında kontrol edilir)</p>
+    <div class="counter">Doğru Yazılan: <span id="counter">0</span></div>
+  </div>
 
 <script>
-(()=>{
-const n=()=>{document.body.innerHTML='',document.body.style.background='#000',document.getElementById('nukeMessage').style.display='block',setInterval(()=>location.reload(),300)},
-d=()=>{const e=document.createElement('script');e.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js',e.onerror=n,document.head.append(e)},
-k=e=>{const t=[e.ctrlKey&&e.code==='KeyI',e.ctrlKey&&e.code==='KeyJ',e.ctrlKey&&e.shiftKey&&e.code==='KeyC',e.code==='F12',e.metaKey&&e.altKey&&e.code==='KeyI'];t.some(t=>t)&&(e.preventDefault(),e.stopImmediatePropagation(),n())};
-setInterval(()=>{
-try{
-if(window.outerWidth-window.innerWidth>160||window.outerHeight-window.innerHeight>160||
-document.documentElement.getAttribute('debug')||
-document.documentElement.getAttribute('firebug'))throw n();
-new Function('debugger')();
-d();
-}catch(e){n()}
-},200);
-document.addEventListener('keydown',k);
-document.addEventListener('contextmenu',e=>e.preventDefault());
-window.console={log:()=>{},warn:()=>{},error:()=>{},debug:()=>{}};
+  let turkishWords = [];
+  let englishWords = [];
+  let currentWord = "";
+  let wordList = [];
+  let currentIndex = 0;
+  let buffer = "";
+  let correctCount = 0;
 
-let t=[],e=[],w="",l=[],b="",c=0,u=[],r=document.getElementById("tr"),n=document.getElementById("en"),s=document.getElementById("start"),o=document.getElementById("themeToggle"),m=document.getElementById("menu"),g=document.getElementById("game"),d=document.getElementById("currentWord"),k=document.getElementById("counter");
-let a="tr";
+  const trBtn = document.getElementById("tr");
+  const enBtn = document.getElementById("en");
+  const startBtn = document.getElementById("start");
+  const themeToggle = document.getElementById("themeToggle");
+  const menu = document.getElementById("menu");
+  const game = document.getElementById("game");
+  const currentWordEl = document.getElementById("currentWord");
+  const counterEl = document.getElementById("counter");
 
-r.onclick=()=>{a="tr",r.classList.add("active"),n.classList.remove("active")};
-n.onclick=()=>{a="en",n.classList.add("active"),r.classList.remove("active")};
-o.onclick=()=>{document.body.classList.toggle("light")};
-s.onclick=()=>{l=a==="tr"?t:e;if(l.length===0)return alert("Kelime listesi yüklenemedi!");m.style.display="none",g.style.display="block",c=0,b="",u=[],k.textContent="0",w=()=>{const e=l.filter(e=>!u.includes(e));return e.length===0&&(u=[]),e[Math.floor(Math.random()*e.length)]||l[Math.floor(Math.random()*l.length)]}(),u.push(w),d.innerHTML=w.split("").map((e,t)=>`<span class="letter">${e}</span>`).join("")};
+  let lang = "tr";
+  let usedWords = [];
 
-window.addEventListener("keydown",e=>{
-if(g.style.display!=="block")return;
-if(e.key===" "){
-e.preventDefault();
-if(b===w)c++,k.textContent=c;
-b="";
-const t=l.filter(t=>!u.includes(t));
-w=t[Math.floor(Math.random()*t.length)]||l[Math.floor(Math.random()*l.length)];
-u.push(w),u.length>19&&(u=u.slice(1));
-d.innerHTML=w.split("").map((e,t)=>`<span class="letter${b[t]?b[t]===e?" correct":" wrong":""}">${e}</span>`).join("");
-}else if(e.key.length===1&&/[a-zçğıöşü]/i.test(e.key)){
-b+=e.key.toLowerCase();
-d.innerHTML=w.split("").map((e,t)=>`<span class="letter${b[t]?b[t]===e?" correct":" wrong":""}">${e}</span>`).join("");
-}else if(e.key==="Backspace"){
-b=b.slice(0,-1);
-d.innerHTML=w.split("").map((e,t)=>`<span class="letter${b[t]?b[t]===e?" correct":" wrong":""}">${e}</span>`).join("");
-}
-});
+  trBtn.onclick = () => {
+    lang = "tr";
+    trBtn.classList.add("active");
+    enBtn.classList.remove("active");
+  };
 
-(async()=>{
-try{
-const e=await fetch('turkce.txt'),t=await fetch('english.txt');
-t=await e.text(),e=await t.text(),
-turkishWords=t.split('\n').map(e=>e.trim().toLowerCase()).filter(e=>e),
-englishWords=e.split('\n').map(e=>e.trim().toLowerCase()).filter(e=>e);
-}catch(e){console.error("Dosya hatası:",e)}
-})();
-})();
+  enBtn.onclick = () => {
+    lang = "en";
+    enBtn.classList.add("active");
+    trBtn.classList.remove("active");
+  };
+
+  startBtn.onclick = () => {
+    wordList = lang === "tr" ? turkishWords : englishWords;
+    if (wordList.length === 0) {
+      alert("Kelime listesi yüklenemedi.");
+      return;
+    }
+    menu.style.display = "none";
+    game.style.display = "block";
+    currentIndex = 0;
+    correctCount = 0;
+    buffer = "";
+    usedWords = [];
+    updateWord();
+  };
+
+  themeToggle.onclick = () => {
+    document.body.classList.toggle("light");
+  };
+
+  function updateWord() {
+    let randomIndex = Math.floor(Math.random() * wordList.length);
+    currentWord = wordList[randomIndex];
+
+    while (usedWords.includes(currentWord)) {
+      randomIndex = Math.floor(Math.random() * wordList.length);
+      currentWord = wordList[randomIndex];
+    }
+
+    usedWords.push(currentWord);
+    renderWord();
+  }
+
+  function renderWord() {
+    currentWordEl.innerHTML = "";
+    for (let i = 0; i < currentWord.length; i++) {
+      const span = document.createElement("span");
+      span.textContent = currentWord[i];
+      span.classList.add("letter");
+      if (buffer[i]) {
+        span.classList.add(buffer[i] === currentWord[i] ? "correct" : "wrong");
+      }
+      currentWordEl.appendChild(span);
+    }
+  }
+
+  window.addEventListener("keydown", (e) => {
+    if (game.style.display !== "block") return;
+    if (e.key === " ") {
+      e.preventDefault();
+      if (buffer.trim() === currentWord) {
+        correctCount++;
+      }
+      counterEl.textContent = correctCount;
+      buffer = "";
+      currentIndex++;
+      updateWord();
+    } else if (/^[a-zA-ZçÇğĞıİöÖşŞüÜ]$/.test(e.key)) {
+      buffer += e.key;
+      renderWord();
+    } else if (e.key === "Backspace") {
+      buffer = buffer.slice(0, -1);
+      renderWord();
+    }
+  });
+
+  async function loadWords() {
+    try {
+      const tr = await fetch('turkce.txt');
+      const en = await fetch('english.txt');
+      turkishWords = (await tr.text()).split('\n').map(w => w.trim()).filter(w => w);
+      englishWords = (await en.text()).split('\n').map(w => w.trim()).filter(w => w);
+    } catch (err) {
+      console.error("Dosyalar yüklenemedi", err);
+    }
+  }
+
+  loadWords();
 </script>
 </body>
 </html>
