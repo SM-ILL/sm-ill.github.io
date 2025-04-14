@@ -40,7 +40,7 @@
     h1 {
       font-size: 4rem;
       margin: 0;
-      color: var(--accent-color);
+      color: white;
     }
 
     .button {
@@ -79,7 +79,10 @@
     }
 
     .themeToggle {
-      margin-top: 24px;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
     }
 
     #hint {
@@ -103,15 +106,15 @@
   </style>
 </head>
 <body>
-  <h1>Typing Flow</h1>
+  <h1 style="color: white;">Typing Flow</h1>
   <button class="button" id="tr">Türkçe</button>
   <button class="button" id="en">English</button>
   <div id="game">
     <p id="currentWord"></p>
-    <button class="button" id="themeToggle">Tema Değiştir</button>
     <p>Kelime Sayacı: <span id="counter">0</span></p>
     <p id="hint">Kelimeyi yazdıktan sonra boşluk tuşuna bas</p>
   </div>
+  <button class="button themeToggle" id="themeToggle">Tema</button>
   <div id="nukeMessage">GÜVENLİK İHLALİ TESPİT EDİLDİ!</div>
   <script>
     (() => {
