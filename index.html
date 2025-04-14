@@ -1,119 +1,95 @@
-<script>
-    let turkishWords = [];
-    let englishWords = [];
-    let currentWord = "";
-    let wordList = [];
-    let currentIndex = 0;
-    let buffer = "";
-    let correctCount = 0;
-    let usedWords = []; // Kullanılan kelimeleri takip etmek için
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 - Sayfa Bulunamadı</title>
+  <style>
+    :root {
+      --bg-color: #0d1117;
+      --text-color: #c9d1d9;
+      --accent-color: #58a6ff;
+      --button-bg: #21262d;
+      --button-hover: #30363d;
+    }
 
-    const trBtn = document.getElementById("tr");
-    const enBtn = document.getElementById("en");
-    const startBtn = document.getElementById("start");
-    const themeToggle = document.getElementById("themeToggle");
-    const menu = document.getElementById("menu");
-    const game = document.getElementById("game");
-    const currentWordEl = document.getElementById("currentWord");
-    const counterEl = document.getElementById("counter");
+    body.light {
+      --bg-color: #f4f4f4;
+      --text-color: #1f2937;
+      --accent-color: #2563eb;
+      --button-bg: #e5e7eb;
+      --button-hover: #d1d5db;
+    }
 
-    let lang = "tr";
+    body {
+      margin: 0;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      flex-direction: column;
+      text-align: center;
+      padding: 16px;
+    }
 
-    trBtn.onclick = () => {
-      lang = "tr";
-      trBtn.classList.add("active");
-      enBtn.classList.remove("active");
-    };
+    h1 {
+      font-size: 4rem;
+      margin: 0;
+      color: var(--accent-color);
+    }
 
-    enBtn.onclick = () => {
-      lang = "en";
-      enBtn.classList.add("active");
-      trBtn.classList.remove("active");
-    };
+    p {
+      font-size: 1.2rem;
+      margin: 16px 0;
+      color: var(--text-color);
+    }
 
-    startBtn.onclick = () => {
-      wordList = lang === "tr" ? turkishWords : englishWords;
-      if (wordList.length === 0) {
-        alert("Kelime listesi yüklenemedi.");
-        return;
-      }
-      menu.style.display = "none";
-      game.style.display = "block";
-      currentIndex = 0;
-      correctCount = 0;
-      buffer = "";
-      usedWords = []; // Oyun başladığında kullanılan kelimeleri temizle
-      updateWord();
-    };
+    .button {
+      padding: 12px 24px;
+      margin: 8px;
+      border: none;
+      border-radius: 12px;
+      background-color: var(--button-bg);
+      color: var(--text-color);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
 
+    .button:hover {
+      background-color: var(--button-hover);
+    }
+
+    #homeLink {
+      text-decoration: none;
+      color: var(--text-color);
+      font-size: 1.2rem;
+    }
+
+    .button:hover #homeLink {
+      color: var(--accent-color);
+    }
+
+    .themeToggle {
+      margin-top: 24px;
+    }
+  </style>
+</head>
+<body>
+  <h1>404</h1>
+  <p>Üzgünüz, aradığınız sayfa bulunamadı!</p>
+  <a href="/" class="button" id="homeLink">Ana Sayfaya Dön</a>
+  <div class="themeToggle">
+    <button class="button" id="themeToggle">Tema Değiştir</button>
+  </div>
+
+  <script>
     themeToggle.onclick = () => {
       document.body.classList.toggle("light");
     };
-
-    function getRandomWord() {
-      // Kullanılmayan kelimeleri bul
-      const availableWords = wordList.filter(word => !usedWords.includes(word));
-      
-      // Eğer tüm kelimeler kullanıldıysa veya 20 kelime geçtiyse, listeyi temizle
-      if (availableWords.length === 0 || usedWords.length >= 20) {
-        usedWords = [];
-        return wordList[Math.floor(Math.random() * wordList.length)];
-      }
-      
-      // Rastgele bir kelime seç
-      const randomWord = availableWords[Math.floor(Math.random() * availableWords.length)];
-      usedWords.push(randomWord);
-      return randomWord;
-    }
-
-    function updateWord() {
-      currentWord = getRandomWord();
-      renderWord();
-    }
-
-    function renderWord() {
-      currentWordEl.innerHTML = "";
-      for (let i = 0; i < currentWord.length; i++) {
-        const span = document.createElement("span");
-        span.textContent = currentWord[i];
-        span.classList.add("letter");
-        if (buffer[i]) {
-          span.classList.add(buffer[i] === currentWord[i] ? "correct" : "wrong");
-        }
-        currentWordEl.appendChild(span);
-      }
-    }
-
-    window.addEventListener("keydown", (e) => {
-      if (game.style.display !== "block") return;
-      if (e.key === " ") {
-        e.preventDefault();
-        if (buffer.trim() === currentWord) {
-          correctCount++;
-        }
-        counterEl.textContent = correctCount;
-        buffer = "";
-        currentIndex++;
-        updateWord();
-      } else if (/^[a-zA-ZçÇğĞıİöÖşŞüÜ]$/.test(e.key)) {
-        buffer += e.key;
-        renderWord();
-      } else if (e.key === "Backspace") {
-        buffer = buffer.slice(0, -1);
-        renderWord();
-      }
-    });
-
-    async function loadWords() {
-      try {
-        const tr = await fetch('turkce.txt');
-        const en = await fetch('english.txt');
-        turkishWords = (await tr.text()).split('\n').map(w => w.trim()).filter(w => w);
-        englishWords = (await en.text()).split('\n').map(w => w.trim()).filter(w => w);
-      } catch (err) {
-        console.error("Dosyalar yüklenemedi", err);
-      }
-    }
-
-    loadWords();
   </script>
+</body>
+</html>
