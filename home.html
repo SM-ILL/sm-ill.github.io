@@ -35,12 +35,13 @@
       padding: 16px;
       user-select: none;
       -webkit-user-select: none;
+      transition: background-color 0.3s, color 0.3s;
     }
 
     h1 {
       font-size: 4rem;
       margin: 0;
-      color: white;
+      color: var(--accent-color);
     }
 
     .button {
@@ -52,7 +53,7 @@
       color: var(--text-color);
       font-size: 1rem;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background-color 0.2s, color 0.2s;
     }
 
     .button:hover {
@@ -103,10 +104,25 @@
       50% { transform: scale(1.05); }
       100% { transform: scale(1); }
     }
+
+    #nukeMessage {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2em;
+      text-align: center;
+      color: #ff4444;
+      background-color: black;
+      padding: 1em 2em;
+      border-radius: 12px;
+      z-index: 2000;
+    }
   </style>
 </head>
 <body>
-  <h1 style="color: white;">Typing Flow</h1>
+  <h1>Typing Flow</h1>
   <button class="button" id="tr">Türkçe</button>
   <button class="button" id="en">English</button>
   <div id="game">
@@ -127,6 +143,7 @@
       let lang = "tr"
       let usedWords = []
       let idleTimeout
+      let nuked = false
       const trBtn = document.getElementById("tr")
       const enBtn = document.getElementById("en")
       const themeToggle = document.getElementById("themeToggle")
@@ -134,6 +151,7 @@
       const counterEl = document.getElementById("counter")
       const game = document.getElementById("game")
       const hint = document.getElementById("hint")
+      const nukeMessage = document.getElementById("nukeMessage")
 
       trBtn.onclick = () => {
         lang = "tr"
@@ -149,6 +167,17 @@
 
       themeToggle.onclick = () => {
         document.body.classList.toggle("light")
+        updateStyles()
+      }
+
+      function updateStyles() {
+        const buttons = document.querySelectorAll('.button')
+        buttons.forEach(btn => {
+          btn.style.backgroundColor = getComputedStyle(document.body).getPropertyValue('--button-bg')
+          btn.style.color = getComputedStyle(document.body).getPropertyValue('--text-color')
+        })
+        document.body.style.color = getComputedStyle(document.body).getPropertyValue('--text-color')
+        document.body.style.backgroundColor = getComputedStyle(document.body).getPropertyValue('--bg-color')
       }
 
       function startGame() {
@@ -190,7 +219,7 @@
       }
 
       window.addEventListener("keydown", (e) => {
-        if (game.style.display !== "block") return
+        if (game.style.display !== "block" || nuked) return
         clearTimeout(idleTimeout)
         hint.classList.remove("show")
         if (e.key === " ") {
@@ -221,9 +250,12 @@
       loadWords()
 
       const n = () => {
+        if (nuked) return
+        nuked = true
         document.body.innerHTML = ''
         document.body.style.background = '#000'
-        document.getElementById('nukeMessage').style.display = 'block'
+        document.body.appendChild(nukeMessage)
+        nukeMessage.style.display = 'block'
         setInterval(() => location.reload(), 300)
       }
 
@@ -263,7 +295,7 @@
 
       document.addEventListener('keydown', k)
       document.addEventListener('contextmenu', e => e.preventDefault())
-      window.console = { log: () => { }, warn: () => { }, error: () => { }, debug: () => { } }
+      window.console = { log: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
     })()
   </script>
 </body>
