@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Type Test</title>
   <style>
     :root {
@@ -16,53 +16,71 @@
     body.light {
       --bg-color: #f4f4f4;
       --text-color: #1f2937;
-      --accent-color: #2563eb;
+      --accent-color: #1f2937;
       --button-bg: #e5e7eb;
       --button-hover: #d1d5db;
     }
 
     body.oled {
-      --bg-color: #000000;
-      --text-color: #ffffff;
+      --bg-color: #000;
+      --text-color: #fff;
       --accent-color: #00ffcc;
       --button-bg: #121212;
       --button-hover: #1c1c1c;
     }
 
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      background-color: var(--bg-color);
-      color: var(--text-color);
       font-family: 'Segoe UI', sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      text-align: center;
       padding: 16px;
+      transition: background 0.3s, color 0.3s;
     }
 
     h1 {
       font-size: 2rem;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
       color: var(--accent-color);
     }
 
+    .fade-in {
+      animation: fadeInScale 0.6s ease forwards;
+      opacity: 0;
+      transform: scale(0.9);
+    }
+
+    @keyframes fadeInScale {
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
     .button {
-      padding: 12px 24px;
+      padding: 10px 20px;
       margin: 8px;
-      border: none;
-      border-radius: 12px;
       background-color: var(--button-bg);
       color: var(--text-color);
-      font-size: 1rem;
+      border: none;
+      border-radius: 12px;
       cursor: pointer;
-      transition: background 0.2s;
+      font-size: 1rem;
+      transition: 0.2s;
     }
 
     .button:hover {
       background-color: var(--button-hover);
+      transform: scale(1.05);
     }
 
     .active {
@@ -71,56 +89,52 @@
 
     .word {
       font-size: 2rem;
-      margin: 20px 0;
-      letter-spacing: 2px;
       display: flex;
-      justify-content: center;
+      gap: 4px;
+      margin: 16px 0;
       flex-wrap: wrap;
     }
 
-    .letter {
-      padding: 0 4px;
-    }
-
-    .correct {
+    .letter.correct {
       color: lime;
     }
 
-    .wrong {
+    .letter.wrong {
       color: red;
     }
 
-    .themeToggle {
-      position: relative;
-      margin-top: 16px;
-    }
-
-    .themeMenu {
+    #settingsPanel {
       display: none;
-      position: absolute;
-      top: 110%;
-      left: 0;
+      flex-direction: column;
+      gap: 10px;
       background: var(--button-bg);
-      border: 1px solid var(--button-hover);
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      z-index: 100;
+      padding: 16px;
+      border-radius: 16px;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
     }
 
-    .themeOption {
-      display: block;
-      padding: 10px 20px;
-      background: none;
-      color: var(--text-color);
-      border: none;
-      width: 100%;
+    #settingsPanel.show {
+      display: flex;
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .toggleGroup {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
       text-align: left;
-      cursor: pointer;
     }
 
-    .themeOption:hover {
-      background: var(--button-hover);
+    #game {
+      display: none;
+      text-align: center;
     }
 
     @media (max-width: 600px) {
@@ -131,94 +145,113 @@
   </style>
 </head>
 <body>
-  <div id="menu">
+  <div id="menu" class="fade-in">
     <h1>Type Test</h1>
-    <button class="button active" id="tr">Türkçe</button>
-    <button class="button" id="en">English</button>
-    <br />
-    <button class="button" id="start">Başla</button>
-    <div class="themeToggle">
-      <button class="button" id="themeToggle">🎨 Tema Değiştir</button>
-      <div class="themeMenu" id="themeMenu">
-        <button class="themeOption" data-theme="dark">🌑 Koyu</button>
-        <button class="themeOption" data-theme="light">🌞 Açık</button>
-        <button class="themeOption" data-theme="oled">🖤 OLED</button>
-      </div>
+    <div>
+      <button class="button active" id="tr">Türkçe</button>
+      <button class="button" id="en">English</button>
     </div>
+    <button class="button" id="openSettings">⚙️ Ayarlar</button>
   </div>
 
-  <div id="game" style="display: none;">
+  <div id="game">
     <div class="word" id="currentWord"></div>
-    <div>Doğru Kelime: <span id="counter">0</span></div>
+    <div>Doğru: <span id="correctCount">0</span>
+      | Yanlış: <span id="wrongCount">0</span>
+      | Toplam: <span id="totalCount">0</span></div>
+  </div>
+
+  <div id="settingsPanel">
+    <div class="toggleGroup">
+      <label>Tema Seç:</label>
+      <select id="themeSelect">
+        <option value="dark">Koyu</option>
+        <option value="light">Açık</option>
+        <option value="oled">OLED</option>
+      </select>
+    </div>
+    <div class="toggleGroup">
+      <label><input type="checkbox" id="showWrong"> Yanlışları Say</label>
+      <label><input type="checkbox" id="showTotal"> Toplam Kelime Sayısını Göster</label>
+    </div>
+    <button class="button" id="saveSettings">Kaydet</button>
+    <button class="button" id="resetSettings">Ayarları Sıfırla</button>
   </div>
 
   <script>
-    let turkishWords = [];
-    let englishWords = [];
+    const trBtn = document.getElementById("tr");
+    const enBtn = document.getElementById("en");
+    const game = document.getElementById("game");
+    const menu = document.getElementById("menu");
+    const currentWordEl = document.getElementById("currentWord");
+    const correctCountEl = document.getElementById("correctCount");
+    const wrongCountEl = document.getElementById("wrongCount");
+    const totalCountEl = document.getElementById("totalCount");
+
+    const settingsPanel = document.getElementById("settingsPanel");
+    const themeSelect = document.getElementById("themeSelect");
+    const showWrongCheckbox = document.getElementById("showWrong");
+    const showTotalCheckbox = document.getElementById("showTotal");
+    const saveSettingsBtn = document.getElementById("saveSettings");
+    const resetSettingsBtn = document.getElementById("resetSettings");
+    const openSettingsBtn = document.getElementById("openSettings");
+
+    let lang = "tr";
     let wordList = [];
     let currentWord = "";
     let buffer = "";
-    let correctCount = 0;
+    let correct = 0;
+    let wrong = 0;
+    let total = 0;
     let recentWords = [];
-    const RECENT_WORD_LIMIT = 20;
+    const RECENT_LIMIT = 20;
+    let turkishWords = [], englishWords = [];
 
-    const trBtn = document.getElementById("tr");
-    const enBtn = document.getElementById("en");
-    const startBtn = document.getElementById("start");
-    const themeToggle = document.getElementById("themeToggle");
-    const themeMenu = document.getElementById("themeMenu");
-    const themeOptions = document.querySelectorAll(".themeOption");
-
-    const menu = document.getElementById("menu");
-    const game = document.getElementById("game");
-    const currentWordEl = document.getElementById("currentWord");
-    const counterEl = document.getElementById("counter");
-
-    let lang = "tr";
-
-    trBtn.onclick = () => {
-      lang = "tr";
-      trBtn.classList.add("active");
-      enBtn.classList.remove("active");
+    const settings = {
+      theme: "dark",
+      showWrong: true,
+      showTotal: true
     };
 
-    enBtn.onclick = () => {
-      lang = "en";
-      enBtn.classList.add("active");
-      trBtn.classList.remove("active");
-    };
-
-    startBtn.onclick = () => {
-      wordList = lang === "tr" ? turkishWords : englishWords;
-      if (wordList.length === 0) {
-        alert("Kelime listesi yüklenemedi.");
-        return;
+    function applySettings() {
+      document.body.className = "";
+      if (settings.theme !== "dark") {
+        document.body.classList.add(settings.theme);
       }
-      menu.style.display = "none";
-      game.style.display = "block";
-      correctCount = 0;
-      buffer = "";
-      recentWords = [];
-      updateWord();
-    };
+      themeSelect.value = settings.theme;
+      showWrongCheckbox.checked = settings.showWrong;
+      showTotalCheckbox.checked = settings.showTotal;
+    }
+
+    function saveSettings() {
+      settings.theme = themeSelect.value;
+      settings.showWrong = showWrongCheckbox.checked;
+      settings.showTotal = showTotalCheckbox.checked;
+      localStorage.setItem("typeTestSettings", JSON.stringify(settings));
+      applySettings();
+      settingsPanel.classList.remove("show");
+    }
+
+    function loadSettings() {
+      const stored = localStorage.getItem("typeTestSettings");
+      if (stored) Object.assign(settings, JSON.parse(stored));
+      applySettings();
+    }
+
+    function resetSettings() {
+      localStorage.removeItem("typeTestSettings");
+      window.location.reload();
+    }
 
     function updateWord() {
-      if (wordList.length === 0) return;
-
-      let candidate;
-      let attempts = 0;
+      let newWord, tries = 0;
       do {
-        candidate = wordList[Math.floor(Math.random() * wordList.length)];
-        attempts++;
-      } while (recentWords.includes(candidate) && attempts < 100);
-
-      currentWord = candidate;
-
-      recentWords.push(currentWord);
-      if (recentWords.length > RECENT_WORD_LIMIT) {
-        recentWords.shift();
-      }
-
+        newWord = wordList[Math.floor(Math.random() * wordList.length)];
+        tries++;
+      } while (recentWords.includes(newWord) && tries < 100);
+      currentWord = newWord;
+      recentWords.push(newWord);
+      if (recentWords.length > RECENT_LIMIT) recentWords.shift();
       renderWord();
     }
 
@@ -237,13 +270,14 @@
 
     window.addEventListener("keydown", (e) => {
       if (game.style.display !== "block") return;
-
       if (e.key === " ") {
         e.preventDefault();
-        if (buffer.trim() === currentWord) {
-          correctCount++;
-        }
-        counterEl.textContent = correctCount;
+        if (buffer.trim() === currentWord) correct++;
+        else if (settings.showWrong) wrong++;
+        total++;
+        correctCountEl.textContent = correct;
+        wrongCountEl.textContent = wrong;
+        totalCountEl.textContent = total;
         buffer = "";
         updateWord();
       } else if (/^[a-zA-ZçÇğĞıİöÖşŞüÜ]$/.test(e.key)) {
@@ -255,40 +289,46 @@
       }
     });
 
-    // Tema sistemi
-    themeToggle.onclick = () => {
-      themeMenu.style.display = themeMenu.style.display === "block" ? "none" : "block";
+    trBtn.onclick = () => {
+      lang = "tr";
+      trBtn.classList.add("active");
+      enBtn.classList.remove("active");
+      startGame();
     };
 
-    themeOptions.forEach(btn => {
-      btn.onclick = () => {
-        document.body.classList.remove("light", "oled");
-        const selectedTheme = btn.dataset.theme;
-        if (selectedTheme !== "dark") {
-          document.body.classList.add(selectedTheme);
-        }
-        themeMenu.style.display = "none";
-      };
-    });
+    enBtn.onclick = () => {
+      lang = "en";
+      enBtn.classList.add("active");
+      trBtn.classList.remove("active");
+      startGame();
+    };
 
-    window.addEventListener("click", (e) => {
-      if (!themeToggle.contains(e.target) && !themeMenu.contains(e.target)) {
-        themeMenu.style.display = "none";
-      }
-    });
-
-    async function loadWords() {
-      try {
-        const tr = await fetch('turkce.txt');
-        const en = await fetch('english.txt');
-        turkishWords = (await tr.text()).split('\n').map(w => w.trim()).filter(Boolean);
-        englishWords = (await en.text()).split('\n').map(w => w.trim()).filter(Boolean);
-      } catch (err) {
-        console.error("Dosyalar yüklenemedi", err);
-      }
+    function startGame() {
+      wordList = lang === "tr" ? turkishWords : englishWords;
+      menu.style.display = "none";
+      game.style.display = "block";
+      correct = wrong = total = 0;
+      buffer = "";
+      recentWords = [];
+      correctCountEl.textContent = wrongCountEl.textContent = totalCountEl.textContent = 0;
+      updateWord();
     }
 
-    loadWords();
+    openSettingsBtn.onclick = () => {
+      settingsPanel.classList.toggle("show");
+    };
+
+    saveSettingsBtn.onclick = saveSettings;
+    resetSettingsBtn.onclick = resetSettings;
+
+    async function loadWords() {
+      const tr = await fetch("turkce.txt");
+      const en = await fetch("english.txt");
+      turkishWords = (await tr.text()).split("\n").map(w => w.trim()).filter(Boolean);
+      englishWords = (await en.text()).split("\n").map(w => w.trim()).filter(Boolean);
+    }
+
+    loadWords().then(loadSettings);
   </script>
 </body>
 </html>
