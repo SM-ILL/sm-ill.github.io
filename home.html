@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Type Test</title>
   <style>
     :root {
@@ -38,11 +38,11 @@
       font-family: 'Segoe UI', sans-serif;
       background: var(--bg-color);
       color: var(--text-color);
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: center;
-      min-height: 100vh;
+      align-items: center;
       padding: 16px;
       transition: background 0.3s, color 0.3s;
     }
@@ -51,6 +51,7 @@
       font-size: 2rem;
       margin-bottom: 16px;
       color: var(--accent-color);
+      text-align: center;
     }
 
     .fade-in {
@@ -87,43 +88,41 @@
       border: 2px solid var(--accent-color);
     }
 
+    #menu, #game {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
     .word {
       font-size: 2rem;
       display: flex;
       gap: 4px;
-      margin: 16px 0;
       flex-wrap: wrap;
+      justify-content: center;
+      margin: 16px 0;
     }
 
-    .letter.correct {
-      color: lime;
-    }
-
-    .letter.wrong {
-      color: red;
-    }
+    .letter.correct { color: lime; }
+    .letter.wrong { color: red; }
 
     #settingsPanel {
       display: none;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
       background: var(--button-bg);
-      padding: 16px;
+      padding: 20px;
       border-radius: 16px;
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0.9);
-      opacity: 0;
-      transition: all 0.3s ease;
-      z-index: 1000;
+      bottom: 80px;
+      right: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      z-index: 999;
+      max-width: 300px;
     }
 
-    #settingsPanel.show {
-      display: flex;
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
-    }
+    #settingsPanel.show { display: flex; }
 
     .toggleGroup {
       display: flex;
@@ -132,15 +131,22 @@
       text-align: left;
     }
 
-    #game {
-      display: none;
-      text-align: center;
-    }
-
-    @media (max-width: 600px) {
-      .word {
-        font-size: 1.5rem;
-      }
+    #settingsBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: var(--accent-color);
+      color: var(--bg-color);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      border: none;
+      cursor: pointer;
+      z-index: 1000;
     }
   </style>
 </head>
@@ -151,19 +157,21 @@
       <button class="button active" id="tr">Türkçe</button>
       <button class="button" id="en">English</button>
     </div>
-    <button class="button" id="openSettings">⚙️ Ayarlar</button>
   </div>
 
   <div id="game">
     <div class="word" id="currentWord"></div>
-    <div>Doğru: <span id="correctCount">0</span>
-      | Yanlış: <span id="wrongCount">0</span>
-      | Toplam: <span id="totalCount">0</span></div>
+    <div>
+      Doğru: <span id="correctCount">0</span> |
+      Yanlış: <span id="wrongCount">0</span> |
+      Toplam: <span id="totalCount">0</span>
+    </div>
   </div>
 
+  <button id="settingsBtn">⚙️</button>
   <div id="settingsPanel">
     <div class="toggleGroup">
-      <label>Tema Seç:</label>
+      <label>Tema:</label>
       <select id="themeSelect">
         <option value="dark">Koyu</option>
         <option value="light">Açık</option>
@@ -171,87 +179,103 @@
       </select>
     </div>
     <div class="toggleGroup">
-      <label><input type="checkbox" id="showWrong"> Yanlışları Say</label>
-      <label><input type="checkbox" id="showTotal"> Toplam Kelime Sayısını Göster</label>
+      <label><input type="checkbox" id="showWrong"> Yanlışları Göster</label>
+      <label><input type="checkbox" id="showTotal"> Toplam Kelime Göster</label>
+    </div>
+    <div class="toggleGroup">
+      <label>Zorluk:</label>
+      <select id="difficultySelect" multiple>
+        <option value="1">Kolay</option>
+        <option value="2">Orta</option>
+        <option value="3">Zor</option>
+      </select>
     </div>
     <button class="button" id="saveSettings">Kaydet</button>
-    <button class="button" id="resetSettings">Ayarları Sıfırla</button>
+    <button class="button" id="resetSettings">Sıfırla</button>
   </div>
 
   <script>
-    const trBtn = document.getElementById("tr");
-    const enBtn = document.getElementById("en");
-    const game = document.getElementById("game");
-    const menu = document.getElementById("menu");
-    const currentWordEl = document.getElementById("currentWord");
-    const correctCountEl = document.getElementById("correctCount");
-    const wrongCountEl = document.getElementById("wrongCount");
-    const totalCountEl = document.getElementById("totalCount");
-
-    const settingsPanel = document.getElementById("settingsPanel");
-    const themeSelect = document.getElementById("themeSelect");
-    const showWrongCheckbox = document.getElementById("showWrong");
-    const showTotalCheckbox = document.getElementById("showTotal");
-    const saveSettingsBtn = document.getElementById("saveSettings");
-    const resetSettingsBtn = document.getElementById("resetSettings");
-    const openSettingsBtn = document.getElementById("openSettings");
-
-    let lang = "tr";
-    let wordList = [];
-    let currentWord = "";
-    let buffer = "";
-    let correct = 0;
-    let wrong = 0;
-    let total = 0;
-    let recentWords = [];
-    const RECENT_LIMIT = 20;
-    let turkishWords = [], englishWords = [];
-
     const settings = {
       theme: "dark",
       showWrong: true,
-      showTotal: true
+      showTotal: true,
+      difficulties: ["1"]
     };
 
-    function applySettings() {
-      document.body.className = "";
-      if (settings.theme !== "dark") {
-        document.body.classList.add(settings.theme);
+    const langButtons = {
+      tr: document.getElementById("tr"),
+      en: document.getElementById("en")
+    };
+
+    let lang = "tr";
+    let wordList = [];
+    let buffer = "";
+    let currentWord = "";
+    let correct = 0, wrong = 0, total = 0;
+    let recentWords = [];
+    const RECENT_LIMIT = 20;
+
+    const wordSources = {};
+
+    const correctEl = document.getElementById("correctCount");
+    const wrongEl = document.getElementById("wrongCount");
+    const totalEl = document.getElementById("totalCount");
+    const currentWordEl = document.getElementById("currentWord");
+
+    async function loadWords() {
+      for (let l of ["turkish", "english"]) {
+        for (let d of ["1", "2", "3"]) {
+          const key = `${l}${d}`;
+          const res = await fetch(`${key}.txt`);
+          wordSources[key] = (await res.text()).split("\n").map(w => w.trim()).filter(Boolean);
+        }
       }
-      themeSelect.value = settings.theme;
-      showWrongCheckbox.checked = settings.showWrong;
-      showTotalCheckbox.checked = settings.showTotal;
+    }
+
+    function applySettings() {
+      document.body.className = settings.theme;
+      document.getElementById("themeSelect").value = settings.theme;
+      document.getElementById("showWrong").checked = settings.showWrong;
+      document.getElementById("showTotal").checked = settings.showTotal;
+      Array.from(document.getElementById("difficultySelect").options).forEach(opt => {
+        opt.selected = settings.difficulties.includes(opt.value);
+      });
     }
 
     function saveSettings() {
-      settings.theme = themeSelect.value;
-      settings.showWrong = showWrongCheckbox.checked;
-      settings.showTotal = showTotalCheckbox.checked;
+      settings.theme = document.getElementById("themeSelect").value;
+      settings.showWrong = document.getElementById("showWrong").checked;
+      settings.showTotal = document.getElementById("showTotal").checked;
+      settings.difficulties = Array.from(document.getElementById("difficultySelect").selectedOptions).map(o => o.value);
       localStorage.setItem("typeTestSettings", JSON.stringify(settings));
       applySettings();
-      settingsPanel.classList.remove("show");
-    }
-
-    function loadSettings() {
-      const stored = localStorage.getItem("typeTestSettings");
-      if (stored) Object.assign(settings, JSON.parse(stored));
-      applySettings();
+      document.getElementById("settingsPanel").classList.remove("show");
     }
 
     function resetSettings() {
       localStorage.removeItem("typeTestSettings");
-      window.location.reload();
+      location.reload();
     }
 
-    function updateWord() {
-      let newWord, tries = 0;
+    function startGame() {
+      const keys = settings.difficulties.map(d => `${lang === "tr" ? "turkish" : "english"}${d}`);
+      wordList = keys.flatMap(k => wordSources[k] || []);
+      document.getElementById("menu").style.display = "none";
+      document.getElementById("game").style.display = "flex";
+      buffer = "";
+      correct = wrong = total = 0;
+      recentWords = [];
+      nextWord();
+    }
+
+    function nextWord() {
+      let next;
       do {
-        newWord = wordList[Math.floor(Math.random() * wordList.length)];
-        tries++;
-      } while (recentWords.includes(newWord) && tries < 100);
-      currentWord = newWord;
-      recentWords.push(newWord);
+        next = wordList[Math.floor(Math.random() * wordList.length)];
+      } while (recentWords.includes(next) && recentWords.length < RECENT_LIMIT);
+      recentWords.push(next);
       if (recentWords.length > RECENT_LIMIT) recentWords.shift();
+      currentWord = next;
       renderWord();
     }
 
@@ -260,7 +284,7 @@
       for (let i = 0; i < currentWord.length; i++) {
         const span = document.createElement("span");
         span.textContent = currentWord[i];
-        span.classList.add("letter");
+        span.className = "letter";
         if (buffer[i]) {
           span.classList.add(buffer[i] === currentWord[i] ? "correct" : "wrong");
         }
@@ -268,18 +292,18 @@
       }
     }
 
-    window.addEventListener("keydown", (e) => {
-      if (game.style.display !== "block") return;
+    window.addEventListener("keydown", e => {
+      if (document.getElementById("game").style.display !== "flex") return;
       if (e.key === " ") {
         e.preventDefault();
         if (buffer.trim() === currentWord) correct++;
         else if (settings.showWrong) wrong++;
         total++;
-        correctCountEl.textContent = correct;
-        wrongCountEl.textContent = wrong;
-        totalCountEl.textContent = total;
+        correctEl.textContent = correct;
+        wrongEl.textContent = wrong;
+        totalEl.textContent = total;
         buffer = "";
-        updateWord();
+        nextWord();
       } else if (/^[a-zA-ZçÇğĞıİöÖşŞüÜ]$/.test(e.key)) {
         buffer += e.key;
         renderWord();
@@ -289,46 +313,21 @@
       }
     });
 
-    trBtn.onclick = () => {
-      lang = "tr";
-      trBtn.classList.add("active");
-      enBtn.classList.remove("active");
-      startGame();
+    langButtons.tr.onclick = () => { lang = "tr"; startGame(); };
+    langButtons.en.onclick = () => { lang = "en"; startGame(); };
+
+    document.getElementById("settingsBtn").onclick = () => {
+      document.getElementById("settingsPanel").classList.toggle("show");
     };
+    document.getElementById("saveSettings").onclick = saveSettings;
+    document.getElementById("resetSettings").onclick = resetSettings;
 
-    enBtn.onclick = () => {
-      lang = "en";
-      enBtn.classList.add("active");
-      trBtn.classList.remove("active");
-      startGame();
-    };
+    (() => {
+      const saved = localStorage.getItem("typeTestSettings");
+      if (saved) Object.assign(settings, JSON.parse(saved));
+    })();
 
-    function startGame() {
-      wordList = lang === "tr" ? turkishWords : englishWords;
-      menu.style.display = "none";
-      game.style.display = "block";
-      correct = wrong = total = 0;
-      buffer = "";
-      recentWords = [];
-      correctCountEl.textContent = wrongCountEl.textContent = totalCountEl.textContent = 0;
-      updateWord();
-    }
-
-    openSettingsBtn.onclick = () => {
-      settingsPanel.classList.toggle("show");
-    };
-
-    saveSettingsBtn.onclick = saveSettings;
-    resetSettingsBtn.onclick = resetSettings;
-
-    async function loadWords() {
-      const tr = await fetch("turkce.txt");
-      const en = await fetch("english.txt");
-      turkishWords = (await tr.text()).split("\n").map(w => w.trim()).filter(Boolean);
-      englishWords = (await en.text()).split("\n").map(w => w.trim()).filter(Boolean);
-    }
-
-    loadWords().then(loadSettings);
+    loadWords().then(applySettings);
   </script>
 </body>
 </html>
