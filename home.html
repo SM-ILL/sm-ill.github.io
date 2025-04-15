@@ -121,108 +121,29 @@
   let buffer = "";
   let correctCount = 0;
 
-  const trBtn = document.getElementById("tr");
-  const enBtn = document.getElementById("en");
-  const startBtn = document.getElementById("start");
-  const themeToggle = document.getElementById("themeToggle");
-  const menu = document.getElementById("menu");
-  const game = document.getElementById("game");
-  const currentWordEl = document.getElementById("currentWord");
-  const counterEl = document.getElementById("counter");
-
-  let lang = "tr";
-  let usedWords = []; // Yeni array, kullanılan kelimeleri tutacak
-
-  trBtn.onclick = () => {
-    lang = "tr";
-    trBtn.classList.add("active");
-    enBtn.classList.remove("active");
-  };
-
-  enBtn.onclick = () => {
-    lang = "en";
-    enBtn.classList.add("active");
-    trBtn.classList.remove("active");
-  };
-
-  startBtn.onclick = () => {
-    wordList = lang === "tr" ? turkishWords : englishWords;
-    if (wordList.length === 0) {
-      alert("Kelime listesi yüklenemedi.");
-      return;
-    }
-    menu.style.display = "none";
-    game.style.display = "block";
-    currentIndex = 0;
-    correctCount = 0;
-    buffer = "";
-    usedWords = [];
-    updateWord();
-  };
-
-  themeToggle.onclick = () => {
-    document.body.classList.toggle("light");
-  };
+  const RECENT_WORD_LIMIT = 20; // 👈 Buradan değiştirilebilir
+  let recentWords = [];
 
   function updateWord() {
-    let randomIndex = Math.floor(Math.random() * wordList.length);
-    currentWord = wordList[randomIndex];
+    if (wordList.length === 0) return;
 
-    while (usedWords.includes(currentWord)) {
-      randomIndex = Math.floor(Math.random() * wordList.length);
-      currentWord = wordList[randomIndex];
+    let candidate;
+    let attempts = 0;
+    do {
+      candidate = wordList[Math.floor(Math.random() * wordList.length)];
+      attempts++;
+    } while (recentWords.includes(candidate) && attempts < 100);
+
+    currentWord = candidate;
+
+    // 🔁 recentWords'e ekle ve sınırı koru
+    recentWords.push(currentWord);
+    if (recentWords.length > RECENT_WORD_LIMIT) {
+      recentWords.shift();
     }
 
-    usedWords.push(currentWord);
     renderWord();
   }
-
-  function renderWord() {
-    currentWordEl.innerHTML = "";
-    for (let i = 0; i < currentWord.length; i++) {
-      const span = document.createElement("span");
-      span.textContent = currentWord[i];
-      span.classList.add("letter");
-      if (buffer[i]) {
-        span.classList.add(buffer[i] === currentWord[i] ? "correct" : "wrong");
-      }
-      currentWordEl.appendChild(span);
-    }
-  }
-
-  window.addEventListener("keydown", (e) => {
-    if (game.style.display !== "block") return;
-    if (e.key === " ") {
-      e.preventDefault();
-      if (buffer.trim() === currentWord) {
-        correctCount++;
-      }
-      counterEl.textContent = correctCount;
-      buffer = "";
-      currentIndex++;
-      updateWord();
-    } else if (/^[a-zA-ZçÇğĞıİöÖşŞüÜ]$/.test(e.key)) {
-      buffer += e.key;
-      renderWord();
-    } else if (e.key === "Backspace") {
-      buffer = buffer.slice(0, -1);
-      renderWord();
-    }
-  });
-
-  async function loadWords() {
-    try {
-      const tr = await fetch('turkce.txt');
-      const en = await fetch('english.txt');
-      turkishWords = (await tr.text()).split('\n').map(w => w.trim()).filter(w => w);
-      englishWords = (await en.text()).split('\n').map(w => w.trim()).filter(w => w);
-    } catch (err) {
-      console.error("Dosyalar yüklenemedi", err);
-    }
-  }
-
-  loadWords();
 </script>
-
 </body>
 </html>
