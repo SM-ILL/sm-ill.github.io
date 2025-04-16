@@ -1,180 +1,192 @@
 // script.js
 
+let language = null;
+let theme = localStorage.getItem('theme') || 'dark';
+let difficulties = JSON.parse(localStorage.getItem('difficulties')) || ['1'];
+let settings = JSON.parse(localStorage.getItem('settings')) || {
+  showCorrect: true,
+  showWrong: true,
+  showTotal: true
+};
+
 let words = [];
 let usedWords = [];
-let language = null;
+let repeatThreshold = 20;
 let currentWord = '';
-let currentCharIndex = 0;
-let correctCount = 0;
-let wrongCount = 0;
-let totalCount = 0;
-let showCorrect = true;
-let showWrong = true;
-let showTotal = true;
-let difficulties = [];
+let currentIndex = 0;
+let correct = 0;
+let wrong = 0;
+let total = 0;
 
-const wordDisplay = document.getElementById('currentWord');
-const correctSpan = document.getElementById('correctContainer');
-const wrongSpan = document.getElementById('wrongContainer');
-const totalSpan = document.getElementById('totalContainer');
+const currentWordDiv = document.getElementById('currentWord');
+const correctCount = document.getElementById('correctCount');
+const wrongCount = document.getElementById('wrongCount');
+const totalCount = document.getElementById('totalCount');
 const stats = document.getElementById('stats');
-const game = document.getElementById('game');
-const menu = document.getElementById('menu');
 
-// Load user settings
-function loadSettings() {
-  const theme = localStorage.getItem('theme') || 'dark';
-  document.body.className = theme;
-  document.querySelector(`#themeSelect button[data-theme="${theme}"]`)?.classList.add('selected');
+const languageButtons = document.querySelectorAll('#languageSelect button');
+const themeButtons = document.querySelectorAll('#themeSelect button');
+const difficultyButtons = document.querySelectorAll('#difficultySelect button');
+const settingsBtn = document.getElementById('settingsBtn');
+const settingsPanel = document.getElementById('settingsPanel');
+const saveSettings = document.getElementById('saveSettings');
+const resetSettings = document.getElementById('resetSettings');
 
-  const settings = JSON.parse(localStorage.getItem('settings') || '{}');
-  showCorrect = settings.showCorrect ?? true;
-  showWrong = settings.showWrong ?? true;
-  showTotal = settings.showTotal ?? true;
-  difficulties = settings.difficulties || [];
-
-  document.getElementById('showCorrect').checked = showCorrect;
-  document.getElementById('showWrong').checked = showWrong;
-  document.getElementById('showTotal').checked = showTotal;
-
-  difficulties.forEach(d => {
-    document.querySelector(`#difficultySelect button[data-difficulty="${d}"]`)?.classList.add('selected');
-  });
-
-  updateStatsDisplay();
+function applyTheme(themeName) {
+  document.body.className = themeName;
+  localStorage.setItem('theme', themeName);
 }
 
-// Save settings
-function saveSettings() {
-  const theme = document.querySelector('#themeSelect .selected')?.dataset.theme || 'dark';
-  localStorage.setItem('theme', theme);
-  document.body.className = theme;
-
-  const selectedDiffs = [...document.querySelectorAll('#difficultySelect .selected')].map(btn => btn.dataset.difficulty);
-
-  const settings = {
-    showCorrect: document.getElementById('showCorrect').checked,
-    showWrong: document.getElementById('showWrong').checked,
-    showTotal: document.getElementById('showTotal').checked,
-    difficulties: selectedDiffs
-  };
-  localStorage.setItem('settings', JSON.stringify(settings));
-  loadSettings();
+function applySettings() {
+  document.getElementById('showCorrect').checked = settings.showCorrect;
+  document.getElementById('showWrong').checked = settings.showWrong;
+  document.getElementById('showTotal').checked = settings.showTotal;
+  toggleStatsVisibility();
 }
 
-// Reset settings
-function resetSettings() {
-  localStorage.removeItem('settings');
-  localStorage.removeItem('theme');
-  location.reload();
-}
-
-function updateStatsDisplay() {
-  correctSpan.style.display = showCorrect ? 'inline' : 'none';
-  wrongSpan.style.display = showWrong ? 'inline' : 'none';
-  totalSpan.style.display = showTotal ? 'inline' : 'none';
-  stats.style.display = (showCorrect || showWrong || showTotal) ? 'block' : 'none';
+function toggleStatsVisibility() {
+  stats.style.display = 'none';
+  if (settings.showCorrect || settings.showWrong || settings.showTotal) {
+    stats.style.display = 'block';
+    document.getElementById('correctContainer').style.display = settings.showCorrect ? 'inline' : 'none';
+    document.getElementById('wrongContainer').style.display = settings.showWrong ? 'inline' : 'none';
+    document.getElementById('totalContainer').style.display = settings.showTotal ? 'inline' : 'none';
+  }
 }
 
 function loadWords() {
-  const selectedDiffs = difficulties.length ? difficulties : ['1'];
-  const promises = selectedDiffs.map(diff => fetch(`${language}${diff}.txt`).then(res => res.text()));
-
-  Promise.all(promises).then(results => {
-    words = results.flatMap(txt => txt.split(/\s+/).filter(w => w));
-    startGame();
+  const promises = difficulties.map(dif => fetch(`${language}${dif}.txt`).then(res => res.text()));
+  return Promise.all(promises).then(datas => {
+    const wordSet = new Set();
+    datas.forEach(data => {
+      data.split(/\s+/).forEach(word => wordSet.add(word));
+    });
+    words = Array.from(wordSet);
   });
 }
 
-function startGame() {
-  menu.style.display = 'none';
-  game.style.display = 'flex';
-  usedWords = [];
-  correctCount = 0;
-  wrongCount = 0;
-  totalCount = 0;
-  nextWord();
-  updateStats();
-}
-
-function nextWord() {
-  const pool = words.filter(w => !usedWords.includes(w));
-  if (pool.length === 0 || usedWords.length >= 20) usedWords = [];
-  currentWord = pool[Math.floor(Math.random() * pool.length)];
-  usedWords.push(currentWord);
-  displayWord(currentWord);
-  currentCharIndex = 0;
+function pickNewWord() {
+  if (usedWords.length >= repeatThreshold) {
+    usedWords.shift();
+  }
+  let newWord;
+  do {
+    newWord = words[Math.floor(Math.random() * words.length)];
+  } while (usedWords.includes(newWord));
+  usedWords.push(newWord);
+  return newWord;
 }
 
 function displayWord(word) {
-  wordDisplay.innerHTML = '';
-  for (let char of word) {
+  currentWordDiv.innerHTML = '';
+  word.split('').forEach(letter => {
     const span = document.createElement('span');
-    span.textContent = char;
-    span.className = 'letter';
-    wordDisplay.appendChild(span);
-  }
-  wordDisplay.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    span.textContent = letter;
+    span.classList.add('letter');
+    currentWordDiv.appendChild(span);
+  });
+}
+
+function resetGame() {
+  correct = 0;
+  wrong = 0;
+  total = 0;
+  updateStats();
+  currentIndex = 0;
+  currentWord = pickNewWord();
+  displayWord(currentWord);
 }
 
 function updateStats() {
-  document.getElementById('correctCount').textContent = correctCount;
-  document.getElementById('wrongCount').textContent = wrongCount;
-  document.getElementById('totalCount').textContent = totalCount;
+  correctCount.textContent = correct;
+  wrongCount.textContent = wrong;
+  totalCount.textContent = total;
 }
 
-// Input handler
-document.addEventListener('keydown', e => {
-  if (!currentWord || !game.contains(wordDisplay)) return;
-  const spans = wordDisplay.querySelectorAll('.letter');
-  const expected = currentWord[currentCharIndex];
-  const input = e.key;
-
-  if (input.length === 1 && input.match(/\S/)) {
-    const span = spans[currentCharIndex];
-    if (input === expected) {
-      span.classList.add('correct');
-      correctCount++;
-    } else {
-      span.classList.add('wrong');
-      wrongCount++;
-    }
-    currentCharIndex++;
-
-    if (currentCharIndex === currentWord.length) {
-      totalCount++;
-      updateStats();
-      setTimeout(nextWord, 300);
-    }
+document.addEventListener('keydown', (e) => {
+  if (!currentWord) return;
+  const letterSpans = document.querySelectorAll('.letter');
+  if (e.key === currentWord[currentIndex]) {
+    letterSpans[currentIndex].classList.add('correct');
+    correct++;
+  } else {
+    letterSpans[currentIndex].classList.add('wrong');
+    wrong++;
   }
+  currentIndex++;
+  total++;
+
+  if (currentIndex >= currentWord.length) {
+    currentIndex = 0;
+    currentWord = pickNewWord();
+    displayWord(currentWord);
+  }
+  updateStats();
 });
 
-// UI button events
-document.querySelectorAll('#languageSelect button').forEach(btn => {
+languageButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     language = btn.dataset.lang;
-    loadWords();
+    document.getElementById('menu').style.display = 'none';
+    document.getElementById('game').style.display = 'flex';
+    if (difficulties.length === 0) {
+      alert("Lütfen en az bir zorluk seçiniz.");
+      location.reload();
+      return;
+    }
+    loadWords().then(() => {
+      resetGame();
+    });
   });
 });
 
-document.querySelectorAll('#themeSelect button').forEach(btn => {
+themeButtons.forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('#themeSelect button').forEach(b => b.classList.remove('selected'));
+    themeButtons.forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
+    theme = btn.dataset.theme;
+    applyTheme(theme);
   });
 });
 
-document.querySelectorAll('#difficultySelect button').forEach(btn => {
+difficultyButtons.forEach(btn => {
   btn.addEventListener('click', () => {
+    const value = btn.dataset.difficulty;
+    if (difficulties.includes(value)) {
+      difficulties = difficulties.filter(d => d !== value);
+    } else {
+      difficulties.push(value);
+    }
     btn.classList.toggle('selected');
   });
 });
 
-document.getElementById('saveSettings').addEventListener('click', saveSettings);
-document.getElementById('resetSettings').addEventListener('click', resetSettings);
-document.getElementById('settingsBtn').addEventListener('click', () => {
-  document.getElementById('settingsPanel').classList.toggle('show');
+settingsBtn.addEventListener('click', () => {
+  settingsPanel.classList.toggle('show');
 });
 
-// Initial load
-loadSettings();
+saveSettings.addEventListener('click', () => {
+  settings.showCorrect = document.getElementById('showCorrect').checked;
+  settings.showWrong = document.getElementById('showWrong').checked;
+  settings.showTotal = document.getElementById('showTotal').checked;
+  localStorage.setItem('settings', JSON.stringify(settings));
+  localStorage.setItem('difficulties', JSON.stringify(difficulties));
+  applySettings();
+  settingsPanel.classList.remove('show');
+});
+
+resetSettings.addEventListener('click', () => {
+  localStorage.removeItem('settings');
+  localStorage.removeItem('difficulties');
+  location.reload();
+});
+
+applyTheme(theme);
+applySettings();
+
+difficulties.forEach(value => {
+  const btn = document.querySelector(`#difficultySelect button[data-difficulty="${value}"]`);
+  if (btn) btn.classList.add('selected');
+});
+
+document.querySelector(`#themeSelect button[data-theme="${theme}"]`)?.classList.add('selected');
