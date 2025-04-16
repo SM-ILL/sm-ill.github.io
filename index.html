@@ -5,233 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Type Test</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    :root {
-      --bg-color: #0d1117;
-      --text-color: #c9d1d9;
-      --accent-color: #58a6ff;
-      --button-bg: #21262d;
-      --button-hover: #30363d;
-      --correct-color: lime;
-      --wrong-color: red;
-    }
-
-    body.light {
-      --bg-color: #f4f4f4;
-      --text-color: #1f2937;
-      --accent-color: #1f2937;
-      --button-bg: #e5e7eb;
-      --button-hover: #d1d5db;
-      --correct-color: green;
-    }
-
-    body.oled {
-      --bg-color: #000;
-      --text-color: #fff;
-      --accent-color: #00ffcc;
-      --button-bg: #121212;
-      --button-hover: #1c1c1c;
-      --correct-color: #fff;
-    }
-
-    body.custom {
-      --bg-color: #1a1a2e;
-      --text-color: #eaeaea;
-      --accent-color: #ff8c00;
-      --button-bg: #16213e;
-      --button-hover: #0f3460;
-      --correct-color: cyan;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: var(--bg-color);
-      color: var(--text-color);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 16px;
-      transition: background 0.3s, color 0.3s;
-    }
-
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 16px;
-      color: var(--accent-color);
-      text-align: center;
-    }
-
-    .fade-in {
-      animation: fadeInScale 0.6s ease forwards;
-      opacity: 0;
-      transform: scale(0.9);
-    }
-
-    @keyframes fadeInScale {
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
-    .button {
-      padding: 10px 20px;
-      margin: 8px;
-      background-color: var(--button-bg);
-      color: var(--text-color);
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: 0.2s;
-    }
-
-    .button:hover {
-      background-color: var(--button-hover);
-      transform: scale(1.05);
-    }
-
-    .active {
-      border: 2px solid var(--accent-color);
-    }
-
-    #menu, #game {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-
-    .word {
-      font-size: 2rem;
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin: 16px 0;
-    }
-
-    .letter.correct { color: var(--correct-color); }
-    .letter.wrong { color: var(--wrong-color); }
-
-    #stats { display: none; }
-
-    #settingsPanel {
-      display: none;
-      flex-direction: column;
-      gap: 12px;
-      background: var(--button-bg);
-      padding: 20px;
-      border-radius: 16px;
-      position: fixed;
-      bottom: 80px;
-      right: 20px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.4);
-      z-index: 999;
-      max-width: 300px;
-    }
-
-    #settingsPanel.show { display: flex; }
-
-    .switchGroup {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      text-align: left;
-    }
-
-    .switchRow {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 46px;
-      height: 24px;
-    }
-
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #ccc;
-      transition: .4s;
-      border-radius: 24px;
-    }
-
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: .4s;
-      border-radius: 50%;
-    }
-
-    input:checked + .slider {
-      background-color: var(--accent-color);
-    }
-
-    input:checked + .slider:before {
-      transform: translateX(22px);
-    }
-
-    #settingsBtn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: var(--accent-color);
-      color: var(--bg-color);
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      border: none;
-      cursor: pointer;
-      z-index: 1000;
-    }
-
-    .switch-options button {
-      background: none;
-      border: 2px solid var(--accent-color);
-      color: var(--text-color);
-      padding: 5px 10px;
-      border-radius: 10px;
-      margin: 4px;
-      cursor: pointer;
-    }
-
-    .switch-options button.selected {
-      background-color: var(--accent-color);
-      color: var(--bg-color);
-    }
-  </style>
+  <link rel="stylesheet" href="customize.css">
 </head>
 <body>
   <div id="menu" class="fade-in">
-    <h1>Type Test</h1>
+    <h1 id="title">Type Test</h1>
     <div class="switch-options" id="languageSelect">
       <button data-lang="tr">Türkçe</button>
       <button data-lang="en">English</button>
@@ -255,7 +33,10 @@
         <button data-theme="dark">Koyu</button>
         <button data-theme="light">Açık</button>
         <button data-theme="oled">OLED</button>
-        <button data-theme="custom">Özel</button>
+        <div class="custom-wrapper">
+          <button data-theme="custom" id="customThemeBtn">Özel</button>
+          <button id="customizeBtn">Özelleştir</button>
+        </div>
       </div>
     </div>
     <div class="switchGroup">
@@ -273,6 +54,34 @@
     </div>
     <button class="button" id="saveSettings">Kaydet</button>
     <button class="button" id="resetSettings">Sıfırla</button>
+  </div>
+
+  <div id="customizePanel" class="modal">
+    <div class="modal-content">
+      <h2>Özelleştirilebilir Tema</h2>
+      <div class="color-inputs">
+        <label>Arka Plan: <input type="color" id="bgColorPicker" /></label>
+        <label>Metin: <input type="color" id="textColorPicker" /></label>
+        <label>Vurgu: <input type="color" id="accentColorPicker" /></label>
+        <label>Düğme: <input type="color" id="buttonColorPicker" /></label>
+        <label>Doğru Harf: <input type="color" id="correctColorPicker" /></label>
+        <label>Yanlış Harf: <input type="color" id="wrongColorPicker" /></label>
+      </div>
+      <div class="preview">
+        <h3 class="preview-title">Örnek Başlık</h3>
+        <button class="preview-button">Buton</button>
+        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        <div class="word">
+          <span class="letter correct">d</span>
+          <span class="letter wrong">o</span>
+          <span class="letter">ğ</span>
+          <span class="letter">r</span>
+          <span class="letter">u</span>
+        </div>
+      </div>
+      <button class="button" id="applyCustomTheme">Uygula</button>
+      <button class="button" id="closeCustomize">Kapat</button>
+    </div>
   </div>
 
   <script src="script.js"></script>
