@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="tr">
+<!DOCTYPE html><html lang="tr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,23 +8,20 @@
 </head>
 <body>
   <div id="menu" class="fade-in">
-    <h1 id="title">Type Test</h1>
+    <h1>Type Test</h1>
     <div class="switch-options" id="languageSelect">
       <button data-lang="tr">Türkçe</button>
       <button data-lang="en">English</button>
     </div>
-  </div>
-
-  <div id="game" style="display:none;">
+  </div>  <div id="game" style="display:none;">
     <div class="word" id="currentWord"></div>
     <div id="stats">
       <span id="correctContainer">Doğru: <span id="correctCount">0</span></span>
       <span id="wrongContainer"> | Yanlış: <span id="wrongCount">0</span></span>
       <span id="totalContainer"> | Toplam: <span id="totalCount">0</span></span>
     </div>
-  </div>
+  </div><button id="settingsBtn">⚙️</button>
 
-  <button id="settingsBtn">⚙️</button>
   <div id="settingsPanel">
     <div class="switchGroup">
       <label>Tema:</label>
@@ -33,9 +29,9 @@
         <button data-theme="dark">Koyu</button>
         <button data-theme="light">Açık</button>
         <button data-theme="oled">OLED</button>
-        <div class="custom-wrapper">
-          <button data-theme="custom" id="customThemeBtn">Özel</button>
-          <button id="customizeBtn">Özelleştir</button>
+        <div class="custom-theme-container">
+          <button data-theme="custom" class="custom-theme-button">Özel</button>
+          <button class="customize-trigger">Özelleştir</button>
         </div>
       </div>
     </div>
@@ -54,36 +50,25 @@
     </div>
     <button class="button" id="saveSettings">Kaydet</button>
     <button class="button" id="resetSettings">Sıfırla</button>
-  </div>
-
-  <div id="customizePanel" class="modal">
-    <div class="modal-content">
-      <h2>Özelleştirilebilir Tema</h2>
-      <div class="color-inputs">
-        <label>Arka Plan: <input type="color" id="bgColorPicker" /></label>
-        <label>Metin: <input type="color" id="textColorPicker" /></label>
-        <label>Vurgu: <input type="color" id="accentColorPicker" /></label>
-        <label>Düğme: <input type="color" id="buttonColorPicker" /></label>
-        <label>Doğru Harf: <input type="color" id="correctColorPicker" /></label>
-        <label>Yanlış Harf: <input type="color" id="wrongColorPicker" /></label>
-      </div>
+  </div>  <div id="customizePanel">
+    <div class="customize-inner">
+      <h2>Özelleştir</h2>
+      <label>Arkaplan Rengi <input type="color" id="customBg"></label>
+      <label>Metin Rengi <input type="color" id="customText"></label>
+      <label>Vurgu Rengi <input type="color" id="customAccent"></label>
+      <label>Buton Rengi <input type="color" id="customBtn"></label>
       <div class="preview">
-        <h3 class="preview-title">Örnek Başlık</h3>
-        <button class="preview-button">Buton</button>
+        <h3>Örnek Başlık</h3>
+        <button class="button">Buton</button>
         <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
         <div class="word">
           <span class="letter correct">d</span>
           <span class="letter wrong">o</span>
-          <span class="letter">ğ</span>
-          <span class="letter">r</span>
-          <span class="letter">u</span>
+          <span class="letter">g</span>
         </div>
       </div>
       <button class="button" id="applyCustomTheme">Uygula</button>
       <button class="button" id="closeCustomize">Kapat</button>
     </div>
-  </div>
-
-  <script src="script.js"></script>
-</body>
+  </div>  <script src="script.js"></script></body>
 </html>
