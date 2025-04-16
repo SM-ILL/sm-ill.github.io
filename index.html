@@ -107,6 +107,10 @@
     .letter.correct { color: lime; }
     .letter.wrong { color: red; }
 
+    #stats {
+      display: none;
+    }
+
     #settingsPanel {
       display: none;
       flex-direction: column;
@@ -159,12 +163,12 @@
     </div>
   </div>
 
-  <div id="game">
+  <div id="game" style="display:none;">
     <div class="word" id="currentWord"></div>
-    <div>
-      Doğru: <span id="correctCount">0</span> |
-      Yanlış: <span id="wrongCount">0</span> |
-      Toplam: <span id="totalCount">0</span>
+    <div id="stats">
+      <span id="correctContainer">Doğru: <span id="correctCount">0</span></span>
+      <span id="wrongContainer"> | Yanlış: <span id="wrongCount">0</span></span>
+      <span id="totalContainer"> | Toplam: <span id="totalCount">0</span></span>
     </div>
   </div>
 
@@ -220,6 +224,10 @@
     const correctEl = document.getElementById("correctCount");
     const wrongEl = document.getElementById("wrongCount");
     const totalEl = document.getElementById("totalCount");
+    const correctContainer = document.getElementById("correctContainer");
+    const wrongContainer = document.getElementById("wrongContainer");
+    const totalContainer = document.getElementById("totalContainer");
+    const stats = document.getElementById("stats");
     const currentWordEl = document.getElementById("currentWord");
 
     async function loadWords() {
@@ -242,6 +250,11 @@
       });
     }
 
+    function updateStatsVisibility() {
+      wrongContainer.style.display = settings.showWrong ? "inline" : "none";
+      totalContainer.style.display = settings.showTotal ? "inline" : "none";
+    }
+
     function saveSettings() {
       settings.theme = document.getElementById("themeSelect").value;
       settings.showWrong = document.getElementById("showWrong").checked;
@@ -249,6 +262,7 @@
       settings.difficulties = Array.from(document.getElementById("difficultySelect").selectedOptions).map(o => o.value);
       localStorage.setItem("typeTestSettings", JSON.stringify(settings));
       applySettings();
+      updateStatsVisibility();
       document.getElementById("settingsPanel").classList.remove("show");
     }
 
@@ -262,6 +276,8 @@
       wordList = keys.flatMap(k => wordSources[k] || []);
       document.getElementById("menu").style.display = "none";
       document.getElementById("game").style.display = "flex";
+      stats.style.display = "block";
+      updateStatsVisibility();
       buffer = "";
       correct = wrong = total = 0;
       recentWords = [];
@@ -327,7 +343,10 @@
       if (saved) Object.assign(settings, JSON.parse(saved));
     })();
 
-    loadWords().then(applySettings);
+    loadWords().then(() => {
+      applySettings();
+      updateStatsVisibility();
+    });
   </script>
 </body>
 </html>
