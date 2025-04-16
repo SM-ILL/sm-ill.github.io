@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Type Test</title>
+  <link rel="stylesheet" href="style.css">
   <style>
     :root {
       --bg-color: #0d1117;
@@ -11,6 +12,8 @@
       --accent-color: #58a6ff;
       --button-bg: #21262d;
       --button-hover: #30363d;
+      --correct-color: lime;
+      --wrong-color: red;
     }
 
     body.light {
@@ -19,6 +22,7 @@
       --accent-color: #1f2937;
       --button-bg: #e5e7eb;
       --button-hover: #d1d5db;
+      --correct-color: green;
     }
 
     body.oled {
@@ -27,6 +31,16 @@
       --accent-color: #00ffcc;
       --button-bg: #121212;
       --button-hover: #1c1c1c;
+      --correct-color: #fff;
+    }
+
+    body.custom {
+      --bg-color: #1a1a2e;
+      --text-color: #eaeaea;
+      --accent-color: #ff8c00;
+      --button-bg: #16213e;
+      --button-hover: #0f3460;
+      --correct-color: cyan;
     }
 
     * {
@@ -104,8 +118,10 @@
       margin: 16px 0;
     }
 
-    .letter.correct { color: lime; }
-    .letter.wrong { color: red; }
+    .letter.correct { color: var(--correct-color); }
+    .letter.wrong { color: var(--wrong-color); }
+
+    #stats { display: none; }
 
     #settingsPanel {
       display: none;
@@ -124,11 +140,59 @@
 
     #settingsPanel.show { display: flex; }
 
-    .toggleGroup {
+    .switchGroup {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 10px;
       text-align: left;
+    }
+
+    .switchRow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 46px;
+      height: 24px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--accent-color);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(22px);
     }
 
     #settingsBtn {
@@ -148,186 +212,69 @@
       cursor: pointer;
       z-index: 1000;
     }
+
+    .switch-options button {
+      background: none;
+      border: 2px solid var(--accent-color);
+      color: var(--text-color);
+      padding: 5px 10px;
+      border-radius: 10px;
+      margin: 4px;
+      cursor: pointer;
+    }
+
+    .switch-options button.selected {
+      background-color: var(--accent-color);
+      color: var(--bg-color);
+    }
   </style>
 </head>
 <body>
   <div id="menu" class="fade-in">
     <h1>Type Test</h1>
-    <div>
-      <button class="button active" id="tr">Türkçe</button>
-      <button class="button" id="en">English</button>
+    <div class="switch-options" id="languageSelect">
+      <button data-lang="tr">Türkçe</button>
+      <button data-lang="en">English</button>
     </div>
   </div>
 
-  <div id="game">
+  <div id="game" style="display:none;">
     <div class="word" id="currentWord"></div>
-    <div>
-      Doğru: <span id="correctCount">0</span> |
-      Yanlış: <span id="wrongCount">0</span> |
-      Toplam: <span id="totalCount">0</span>
+    <div id="stats">
+      <span id="correctContainer">Doğru: <span id="correctCount">0</span></span>
+      <span id="wrongContainer"> | Yanlış: <span id="wrongCount">0</span></span>
+      <span id="totalContainer"> | Toplam: <span id="totalCount">0</span></span>
     </div>
   </div>
 
   <button id="settingsBtn">⚙️</button>
   <div id="settingsPanel">
-    <div class="toggleGroup">
+    <div class="switchGroup">
       <label>Tema:</label>
-      <select id="themeSelect">
-        <option value="dark">Koyu</option>
-        <option value="light">Açık</option>
-        <option value="oled">OLED</option>
-      </select>
+      <div class="switch-options" id="themeSelect">
+        <button data-theme="dark">Koyu</button>
+        <button data-theme="light">Açık</button>
+        <button data-theme="oled">OLED</button>
+        <button data-theme="custom">Özel</button>
+      </div>
     </div>
-    <div class="toggleGroup">
-      <label><input type="checkbox" id="showWrong"> Yanlışları Göster</label>
-      <label><input type="checkbox" id="showTotal"> Toplam Kelime Göster</label>
-    </div>
-    <div class="toggleGroup">
+    <div class="switchGroup">
       <label>Zorluk:</label>
-      <select id="difficultySelect" multiple>
-        <option value="1">Kolay</option>
-        <option value="2">Orta</option>
-        <option value="3">Zor</option>
-      </select>
+      <div class="switch-options" id="difficultySelect">
+        <button data-difficulty="1">1</button>
+        <button data-difficulty="2">2</button>
+        <button data-difficulty="3">3</button>
+      </div>
+    </div>
+    <div class="switchGroup">
+      <div class="switchRow"><span>Doğruları Göster</span><label class="switch"><input type="checkbox" id="showCorrect"><span class="slider"></span></label></div>
+      <div class="switchRow"><span>Yanlışları Göster</span><label class="switch"><input type="checkbox" id="showWrong"><span class="slider"></span></label></div>
+      <div class="switchRow"><span>Toplam Kelime Göster</span><label class="switch"><input type="checkbox" id="showTotal"><span class="slider"></span></label></div>
     </div>
     <button class="button" id="saveSettings">Kaydet</button>
     <button class="button" id="resetSettings">Sıfırla</button>
   </div>
 
-  <script>
-    const settings = {
-      theme: "dark",
-      showWrong: true,
-      showTotal: true,
-      difficulties: ["1"]
-    };
-
-    const langButtons = {
-      tr: document.getElementById("tr"),
-      en: document.getElementById("en")
-    };
-
-    let lang = "tr";
-    let wordList = [];
-    let buffer = "";
-    let currentWord = "";
-    let correct = 0, wrong = 0, total = 0;
-    let recentWords = [];
-    const RECENT_LIMIT = 20;
-
-    const wordSources = {};
-
-    const correctEl = document.getElementById("correctCount");
-    const wrongEl = document.getElementById("wrongCount");
-    const totalEl = document.getElementById("totalCount");
-    const currentWordEl = document.getElementById("currentWord");
-
-    async function loadWords() {
-      for (let l of ["turkish", "english"]) {
-        for (let d of ["1", "2", "3"]) {
-          const key = `${l}${d}`;
-          const res = await fetch(`${key}.txt`);
-          wordSources[key] = (await res.text()).split("\n").map(w => w.trim()).filter(Boolean);
-        }
-      }
-    }
-
-    function applySettings() {
-      document.body.className = settings.theme;
-      document.getElementById("themeSelect").value = settings.theme;
-      document.getElementById("showWrong").checked = settings.showWrong;
-      document.getElementById("showTotal").checked = settings.showTotal;
-      Array.from(document.getElementById("difficultySelect").options).forEach(opt => {
-        opt.selected = settings.difficulties.includes(opt.value);
-      });
-    }
-
-    function saveSettings() {
-      settings.theme = document.getElementById("themeSelect").value;
-      settings.showWrong = document.getElementById("showWrong").checked;
-      settings.showTotal = document.getElementById("showTotal").checked;
-      settings.difficulties = Array.from(document.getElementById("difficultySelect").selectedOptions).map(o => o.value);
-      localStorage.setItem("typeTestSettings", JSON.stringify(settings));
-      applySettings();
-      document.getElementById("settingsPanel").classList.remove("show");
-    }
-
-    function resetSettings() {
-      localStorage.removeItem("typeTestSettings");
-      location.reload();
-    }
-
-    function startGame() {
-      const keys = settings.difficulties.map(d => `${lang === "tr" ? "turkish" : "english"}${d}`);
-      wordList = keys.flatMap(k => wordSources[k] || []);
-      document.getElementById("menu").style.display = "none";
-      document.getElementById("game").style.display = "flex";
-      buffer = "";
-      correct = wrong = total = 0;
-      recentWords = [];
-      nextWord();
-    }
-
-    function nextWord() {
-      let next;
-      do {
-        next = wordList[Math.floor(Math.random() * wordList.length)];
-      } while (recentWords.includes(next) && recentWords.length < RECENT_LIMIT);
-      recentWords.push(next);
-      if (recentWords.length > RECENT_LIMIT) recentWords.shift();
-      currentWord = next;
-      renderWord();
-    }
-
-    function renderWord() {
-      currentWordEl.innerHTML = "";
-      for (let i = 0; i < currentWord.length; i++) {
-        const span = document.createElement("span");
-        span.textContent = currentWord[i];
-        span.className = "letter";
-        if (buffer[i]) {
-          span.classList.add(buffer[i] === currentWord[i] ? "correct" : "wrong");
-        }
-        currentWordEl.appendChild(span);
-      }
-    }
-
-    window.addEventListener("keydown", e => {
-      if (document.getElementById("game").style.display !== "flex") return;
-      if (e.key === " ") {
-        e.preventDefault();
-        if (buffer.trim() === currentWord) correct++;
-        else if (settings.showWrong) wrong++;
-        total++;
-        correctEl.textContent = correct;
-        wrongEl.textContent = wrong;
-        totalEl.textContent = total;
-        buffer = "";
-        nextWord();
-      } else if (/^[a-zA-ZçÇğĞıİöÖşŞüÜ]$/.test(e.key)) {
-        buffer += e.key;
-        renderWord();
-      } else if (e.key === "Backspace") {
-        buffer = buffer.slice(0, -1);
-        renderWord();
-      }
-    });
-
-    langButtons.tr.onclick = () => { lang = "tr"; startGame(); };
-    langButtons.en.onclick = () => { lang = "en"; startGame(); };
-
-    document.getElementById("settingsBtn").onclick = () => {
-      document.getElementById("settingsPanel").classList.toggle("show");
-    };
-    document.getElementById("saveSettings").onclick = saveSettings;
-    document.getElementById("resetSettings").onclick = resetSettings;
-
-    (() => {
-      const saved = localStorage.getItem("typeTestSettings");
-      if (saved) Object.assign(settings, JSON.parse(saved));
-    })();
-
-    loadWords().then(applySettings);
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
