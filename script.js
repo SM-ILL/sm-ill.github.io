@@ -1,4 +1,4 @@
-let currentWords = [], currentIndex = 0, lang = "", difficulty = [1], recentWords = [];
+let currentWords = [], lang = "", difficulty = [1], recentWords = [];
 let showCorrect = true, showWrong = false, showTotal = false;
 let correctCount = 0, wrongCount = 0, totalCount = 0;
 let buffer = "";
@@ -17,9 +17,8 @@ function loadSettings() {
 }
 
 function saveSettings() {
-  const theme = document.body.className;
   const settings = {
-    theme,
+    theme: document.body.className,
     difficulty,
     showCorrect: document.getElementById("showCorrect").checked,
     showWrong: document.getElementById("showWrong").checked,
@@ -38,18 +37,17 @@ async function fetchWords(lang, difficulty) {
     fetch(`${lang}${lvl}.txt`).then(res => res.text())
   );
   return Promise.all(promises).then(results => {
-    const all = results.flatMap(r => r.split('\n').map(w => w.trim())).filter(Boolean);
-    return all;
+    return results.flatMap(r => r.split('\n').map(w => w.trim())).filter(Boolean);
   });
 }
 
-function getNextWord(words) {
-  let word;
-  let attempts = 0;
+function getNextWord() {
+  let word, attempts = 0;
   do {
-    word = words[Math.floor(Math.random() * words.length)];
+    word = currentWords[Math.floor(Math.random() * currentWords.length)];
     attempts++;
   } while (recentWords.includes(word) && attempts < 50);
+  
   recentWords.push(word);
   if (recentWords.length > 20) recentWords.shift();
   return word;
@@ -67,13 +65,10 @@ function showWord(word) {
 }
 
 function startGame() {
-  if (!lang || difficulty.length === 0) {
-    alert("Dil ve en az bir zorluk seçilmeli!");
-    return;
-  }
+  if (!lang || difficulty.length === 0) return alert("Dil ve zorluk seçin!");
+  
   document.getElementById("menu").style.display = "none";
   document.getElementById("game").style.display = "flex";
-  document.getElementById("stats").style.display = "block";
   fetchWords(lang, difficulty).then(words => {
     currentWords = words;
     nextWord();
@@ -81,9 +76,8 @@ function startGame() {
 }
 
 function nextWord() {
-  const word = getNextWord(currentWords);
+  const word = getNextWord();
   showWord(word);
-  currentIndex++;
   buffer = "";
 }
 
@@ -97,17 +91,30 @@ function updateStats() {
   document.getElementById("totalContainer").style.display = showTotal ? "inline" : "none";
 }
 
-function checkWord(inputWord) {
+function checkInput() {
   const currentWord = document.getElementById("currentWord").textContent;
-  if (inputWord === currentWord) {
+  const el = document.getElementById("currentWord");
+
+  Array.from(el.children).forEach(span => {
+    span.className = "letter";
+  });
+
+  for (let i = 0; i < buffer.length; i++) {
+    if (i >= currentWord.length) break;
+    el.children[i].classList.add(buffer[i] === currentWord[i] ? "correct" : "wrong");
+  }
+
+  if (buffer === currentWord) {
     correctCount++;
     totalCount++;
-  } else {
+    updateStats();
+    nextWord();
+  } else if (buffer.length === currentWord.length) {
     wrongCount++;
     totalCount++;
+    updateStats();
+    nextWord();
   }
-  updateStats();
-  nextWord();
 }
 
 window.addEventListener("keydown", (e) => {
@@ -115,30 +122,33 @@ window.addEventListener("keydown", (e) => {
   
   if (e.key === " ") {
     e.preventDefault();
-    checkWord(buffer);
+    checkInput();
   } else if (/^[a-zA-ZçÇğĞıİöÖşŞüÜ]$/.test(e.key)) {
-    buffer += e.key;
+    buffer += e.key.toLowerCase();
+    checkInput();
   } else if (e.key === "Backspace") {
     buffer = buffer.slice(0, -1);
+    checkInput();
   }
 });
 
-document.getElementById("languageSelect").addEventListener("click", e => {
+document.getElementById("languageSelect").addEventListener("click", (e) => {
   if (e.target.dataset.lang) {
     lang = e.target.dataset.lang;
     startGame();
   }
 });
 
-document.getElementById("themeSelect").addEventListener("click", e => {
-  const theme = e.target.dataset.theme;
-  if (!theme) return;
-  document.body.className = theme;
+document.getElementById("themeSelect").addEventListener("click", (e) => {
+  if (e.target.dataset.theme) {
+    document.body.className = e.target.dataset.theme;
+  }
 });
 
-document.getElementById("difficultySelect").addEventListener("click", e => {
+document.getElementById("difficultySelect").addEventListener("click", (e) => {
   const d = e.target.dataset.difficulty;
   if (!d) return;
+  
   const idx = difficulty.indexOf(+d);
   if (idx > -1) {
     difficulty.splice(idx, 1);
@@ -149,16 +159,8 @@ document.getElementById("difficultySelect").addEventListener("click", e => {
   }
 });
 
-document.getElementById("saveSettings").addEventListener("click", () => {
-  showCorrect = document.getElementById("showCorrect").checked;
-  showWrong = document.getElementById("showWrong").checked;
-  showTotal = document.getElementById("showTotal").checked;
-  saveSettings();
-  updateStats();
-});
-
+document.getElementById("saveSettings").addEventListener("click", saveSettings);
 document.getElementById("resetSettings").addEventListener("click", resetSettings);
-
 document.getElementById("settingsBtn").addEventListener("click", () => {
   document.getElementById("settingsPanel").classList.toggle("show");
 });
