@@ -1,5 +1,6 @@
 let currentWords = [], currentIndex = 0, lang = "", difficulty = [1], recentWords = [];
-let showCorrect = false, showWrong = false, showTotal = false;
+let showCorrect = true, showWrong = false, showTotal = false;
+let correctCount = 0, wrongCount = 0, totalCount = 0;
 
 function loadSettings() {
   const saved = JSON.parse(localStorage.getItem("typeTestSettings") || "{}");
@@ -82,9 +83,26 @@ function nextWord() {
 }
 
 function updateStats() {
+  document.getElementById("correctCount").textContent = correctCount;
+  document.getElementById("wrongCount").textContent = wrongCount;
+  document.getElementById("totalCount").textContent = totalCount;
+
   document.getElementById("correctContainer").style.display = showCorrect ? "inline" : "none";
   document.getElementById("wrongContainer").style.display = showWrong ? "inline" : "none";
   document.getElementById("totalContainer").style.display = showTotal ? "inline" : "none";
+}
+
+function checkWord(inputWord) {
+  const currentWord = document.getElementById("currentWord").innerText;
+  if (inputWord === currentWord) {
+    correctCount++;
+    totalCount++;
+    nextWord();
+  } else if (inputWord.length === currentWord.length) {
+    wrongCount++;
+    totalCount++;
+    nextWord();
+  }
 }
 
 document.getElementById("languageSelect").addEventListener("click", e => {
@@ -122,22 +140,13 @@ document.getElementById("saveSettings").addEventListener("click", () => {
 });
 
 document.getElementById("resetSettings").addEventListener("click", resetSettings);
+
 document.getElementById("settingsBtn").addEventListener("click", () => {
   document.getElementById("settingsPanel").classList.toggle("show");
 });
 
-document.querySelector(".customize-trigger").addEventListener("click", () => {
-  document.getElementById("customizePanel").style.display = "flex";
+document.getElementById("wordInput").addEventListener("input", (e) => {
+  checkWord(e.target.value);
 });
 
-document.getElementById("closeCustomize").addEventListener("click", () => {
-  document.getElementById("customizePanel").style.display = "none";
-});
-
-document.getElementById("applyCustomTheme").addEventListener("click", () => {
-  document.body.className = "custom";
-  document.documentElement.style.setProperty('--bg-color', document.getElementById("customBg").value);
-  document.documentElement.style.setProperty('--text-color', document.getElementById("customText").value);
-  document.documentElement.style.setProperty('--accent-color', document.getElementById("customAccent").value);
-  document.documentElement.style.setProperty('--button-bg', document.getElementById("customBtn").value);
-});
+loadSettings();
