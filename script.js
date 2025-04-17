@@ -1,14 +1,19 @@
 let currentWords = [], currentIndex = 0, lang = "", difficulty = [1], recentWords = [];
 let showCorrect = true, showWrong = false, showTotal = false;
 let correctCount = 0, wrongCount = 0, totalCount = 0;
+let buffer = "";
 
 function loadSettings() {
   const saved = JSON.parse(localStorage.getItem("typeTestSettings") || "{}");
   if (saved.theme) document.body.className = saved.theme;
   if (saved.difficulty) difficulty = saved.difficulty;
-  document.getElementById("showCorrect").checked = saved.showCorrect || false;
-  document.getElementById("showWrong").checked = saved.showWrong || false;
-  document.getElementById("showTotal").checked = saved.showTotal || false;
+  showCorrect = saved.showCorrect !== undefined ? saved.showCorrect : true;
+  showWrong = saved.showWrong !== undefined ? saved.showWrong : false;
+  showTotal = saved.showTotal !== undefined ? saved.showTotal : false;
+  document.getElementById("showCorrect").checked = showCorrect;
+  document.getElementById("showWrong").checked = showWrong;
+  document.getElementById("showTotal").checked = showTotal;
+  updateStats();
 }
 
 function saveSettings() {
@@ -28,7 +33,7 @@ function resetSettings() {
   location.reload();
 }
 
-function fetchWords(lang, difficulty) {
+async function fetchWords(lang, difficulty) {
   const promises = difficulty.map(lvl =>
     fetch(`${lang}${lvl}.txt`).then(res => res.text())
   );
@@ -79,7 +84,7 @@ function nextWord() {
   const word = getNextWord(currentWords);
   showWord(word);
   currentIndex++;
-  updateStats();
+  buffer = "";
 }
 
 function updateStats() {
@@ -93,17 +98,30 @@ function updateStats() {
 }
 
 function checkWord(inputWord) {
-  const currentWord = document.getElementById("currentWord").innerText;
+  const currentWord = document.getElementById("currentWord").textContent;
   if (inputWord === currentWord) {
     correctCount++;
     totalCount++;
-    nextWord();
-  } else if (inputWord.length === currentWord.length) {
+  } else {
     wrongCount++;
     totalCount++;
-    nextWord();
   }
+  updateStats();
+  nextWord();
 }
+
+window.addEventListener("keydown", (e) => {
+  if (document.getElementById("game").style.display !== "flex") return;
+  
+  if (e.key === " ") {
+    e.preventDefault();
+    checkWord(buffer);
+  } else if (/^[a-zA-ZçÇğĞıİöÖşŞüÜ]$/.test(e.key)) {
+    buffer += e.key;
+  } else if (e.key === "Backspace") {
+    buffer = buffer.slice(0, -1);
+  }
+});
 
 document.getElementById("languageSelect").addEventListener("click", e => {
   if (e.target.dataset.lang) {
@@ -143,10 +161,6 @@ document.getElementById("resetSettings").addEventListener("click", resetSettings
 
 document.getElementById("settingsBtn").addEventListener("click", () => {
   document.getElementById("settingsPanel").classList.toggle("show");
-});
-
-document.getElementById("wordInput").addEventListener("input", (e) => {
-  checkWord(e.target.value);
 });
 
 loadSettings();
