@@ -1,11 +1,12 @@
-<!DOCTYPE html><html lang="tr">
+<!DOCTYPE html>
+<html lang="tr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Type Test</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="customize.css">
-<link rel="icon" href="assets/logo.png" type="image/png">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="customize.css" />
+  <link rel="icon" href="assets/logo.png" type="image/png" />
 </head>
 <body>
   <div id="menu" class="fade-in">
@@ -14,15 +15,28 @@
       <button data-lang="tr">Türkçe</button>
       <button data-lang="en">English</button>
     </div>
-  </div>  <div id="game" style="display:none;">
+  </div>
+
+  <div id="game" style="display: none;">
     <div class="word" id="currentWord"></div>
+
+    <input
+      type="text"
+      id="wordInput"
+      placeholder="Kelimeyi yaz ve Enter’a bas..."
+      autocomplete="off"
+    />
+
     <div id="stats">
       <span id="correctContainer">Doğru: <span id="correctCount">0</span></span>
       <span id="wrongContainer"> | Yanlış: <span id="wrongCount">0</span></span>
       <span id="totalContainer"> | Toplam: <span id="totalCount">0</span></span>
     </div>
-  </div><button id="settingsBtn">⚙️</button>
+  </div>
 
+  <button id="settingsBtn">⚙️</button>
+
+  <!-- Ayar Paneli -->
   <div id="settingsPanel">
     <div class="switchGroup">
       <label>Tema:</label>
@@ -36,6 +50,7 @@
         </div>
       </div>
     </div>
+
     <div class="switchGroup">
       <label>Zorluk:</label>
       <div class="switch-options" id="difficultySelect">
@@ -44,32 +59,50 @@
         <button data-difficulty="3">3</button>
       </div>
     </div>
+
     <div class="switchGroup">
-      <div class="switchRow"><span>Doğruları Göster</span><label class="switch"><input type="checkbox" id="showCorrect"><span class="slider"></span></label></div>
-      <div class="switchRow"><span>Yanlışları Göster</span><label class="switch"><input type="checkbox" id="showWrong"><span class="slider"></span></label></div>
-      <div class="switchRow"><span>Toplam Kelime Göster</span><label class="switch"><input type="checkbox" id="showTotal"><span class="slider"></span></label></div>
+      <div class="switchRow">
+        <span>Doğruları Göster</span>
+        <label class="switch"><input type="checkbox" id="showCorrect" /><span class="slider"></span></label>
+      </div>
+      <div class="switchRow">
+        <span>Yanlışları Göster</span>
+        <label class="switch"><input type="checkbox" id="showWrong" /><span class="slider"></span></label>
+      </div>
+      <div class="switchRow">
+        <span>Toplam Kelime Göster</span>
+        <label class="switch"><input type="checkbox" id="showTotal" /><span class="slider"></span></label>
+      </div>
     </div>
+
     <button class="button" id="saveSettings">Kaydet</button>
     <button class="button" id="resetSettings">Sıfırla</button>
-  </div>  <div id="customizePanel">
+  </div>
+
+  <div id="customizePanel">
     <div class="customize-inner">
       <h2>Özelleştir</h2>
-      <label>Arkaplan Rengi <input type="color" id="customBg"></label>
-      <label>Metin Rengi <input type="color" id="customText"></label>
-      <label>Vurgu Rengi <input type="color" id="customAccent"></label>
-      <label>Buton Rengi <input type="color" id="customBtn"></label>
+      <label>Arkaplan Rengi <input type="color" id="customBg" /></label>
+      <label>Metin Rengi <input type="color" id="customText" /></label>
+      <label>Vurgu Rengi <input type="color" id="customAccent" /></label>
+      <label>Buton Rengi <input type="color" id="customBtn" /></label>
+
       <div class="preview">
         <h3>Örnek Başlık</h3>
         <button class="button">Buton</button>
-        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        <label class="switch"><input type="checkbox" checked /><span class="slider"></span></label>
         <div class="word">
           <span class="letter correct">d</span>
           <span class="letter wrong">o</span>
           <span class="letter">g</span>
         </div>
       </div>
+
       <button class="button" id="applyCustomTheme">Uygula</button>
       <button class="button" id="closeCustomize">Kapat</button>
     </div>
-  </div>  <script src="script.js"></script></body>
+  </div>
+
+  <script src="script.js"></script>
+</body>
 </html>
