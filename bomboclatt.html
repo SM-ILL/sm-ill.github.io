@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+    <base href="https://cdn.jsdelivr.net/gh/genizy/web-port@main/repo/">
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>New Tab</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+            width: 100%;
+            background: #231F20; /* Arka plan rengi eklendi */
+            color: #FFFFFF; /* Varsayılan metin rengi */
+            display: flex; /* İçeriği ortalamak için */
+            justify-content: center; /* Yatayda ortala */
+            align-items: center; /* Dikeyde ortala */
+            text-align: center; /* Metinleri ortala */
+            font-family: Arial, Helvetica, sans-serif; /* Varsayılan font */
+        }
+
+        #start-prompt {
+            padding: 20px;
+        }
+
+        #startButton {
+            background-color: #4CAF50; /* Yeşil */
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 20px;
+            margin-top: 20px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+
+        #startButton:hover {
+            background-color: #45a049;
+        }
+
+        #loading-text {
+            font-family: 'Arial Black', Gadget, sans-serif; /* Daha modern bir font */
+            font-size: 36px; /* Biraz küçültüldü */
+            margin-top: 30px;
+            display: none; /* Başlangıçta gizli */
+            color: #E0E0E0; /* Açık gri renk */
+        }
+        
+        /* Unity container'ı başlangıçta ortalanmayacak şekilde ayarlayalım, tam ekran kaplasın */
+        #unity-container {
+            width: 100%;
+            height: 100%;
+            position: fixed; /* Tam ekran için fixed */
+            top: 0;
+            left: 0;
+            /* display, justify-content, align-items body'den miras alınmayacak */
+        }
+        
+        /* Orijinal style.css'den gelen bazı çakışmaları önlemek için */
+        .unity-desktop {
+          left: 0 !important;
+          top: 0 !important;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="start-prompt">
+        <h1 style="font-size: 48px; color: #FFFFFF;">R.E.P.O</h1>
+        <p style="font-size: 18px; color: #CCCCCC;">Oyunu Deneyimlemeye Hazır Mısın?</p>
+        <button id="startButton">BAŞLAT</button>
+    </div>
+
+    <div id="loading-text">YÜKLENİYOR...</div>
+
+    <div id="unity-container" class="unity-desktop" hidden>
+        <canvas id="unity-canvas" tabindex="-1"></canvas>
+        <div id="unity-loading-bar">
+            <div id="unity-logo"></div>
+            <div id="unity-progress-bar-empty">
+                <div id="unity-progress-bar-full"></div>
+            </div>
+        </div>
+        <div id="unity-warning"> </div>
+    </div>
+
+    <script>
+        var container = document.querySelector("#unity-container");
+        var canvas = document.querySelector("#unity-canvas");
+        var loadingBar = document.querySelector("#unity-loading-bar");
+        var progressBarFull = document.querySelector("#unity-progress-bar-full");
+        var warningBanner = document.querySelector("#unity-warning");
+        
+        var startButton = document.querySelector("#startButton");
+        var startPromptDiv = document.querySelector("#start-prompt");
+        var loadingTextDiv = document.querySelector("#loading-text");
+
+        function unityShowBanner(msg, type) {
+            function updateBannerVisibility() {
+                warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+            }
+            var div = document.createElement('div');
+            div.innerHTML = msg;
+            warningBanner.appendChild(div);
+            if (type == 'error') div.style = 'background: red; padding: 10px;';
+            else {
+                if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+                setTimeout(function () {
+                    warningBanner.removeChild(div);
+                    updateBannerVisibility();
+                }, 5000);
+            }
+            updateBannerVisibility();
+        }
+
+        function mergeFiles(fileParts) {
+            return new Promise((resolve, reject) => {
+                let buffers = [];
+                function fetchPart(index) {
+                    if (index >= fileParts.length) {
+                        let mergedBlob = new Blob(buffers);
+                        let mergedFileUrl = URL.createObjectURL(mergedBlob);
+                        resolve(mergedFileUrl);
+                        return;
+                    }
+                    fetch(fileParts[index])
+                        .then((response) => {
+                            if (!response.ok) {
+                                throw new Error("Network response was not ok for " + fileParts[index]);
+                            }
+                            return response.arrayBuffer();
+                        })
+                        .then((data) => {
+                            buffers.push(data);
+                            fetchPart(index + 1);
+                        })
+                        .catch(error => {
+                            console.error("Error fetching part " + fileParts[index] + ":", error);
+                            reject(error); // Hata durumunda Promise'i reject et
+                        });
+                }
+                fetchPart(0);
+            });
+        }
+
+        function getParts(file, start, end) {
+            let parts = [];
+            for (let i = start; i <= end; i++) {
+                parts.push(file + ".part" + i);
+            }
+            return parts;
+        }
+
+        function startGame() {
+            // Başlatma ekranını gizle
+            if (startPromptDiv) {
+                startPromptDiv.style.display = 'none';
+            }
+
+            // "YÜKLENİYOR..." metnini göster
+            if (loadingTextDiv) {
+                loadingTextDiv.style.display = 'block';
+            }
+            
+            // Body'deki flex ayarlarını kaldırıp unity-container'ın tam ekran olmasına izin ver
+            document.body.style.display = 'block'; // Veya initial/unset
+            document.body.style.justifyContent = '';
+            document.body.style.alignItems = '';
+            document.body.style.textAlign = '';
+
+
+            // Orijinal yükleme mantığı burada başlar
+            Promise.all([
+                mergeFiles(getParts("Build/NewestBuild.wasm.gz", 1, 3)),
+                mergeFiles(getParts("Build/NewestBuild.data.gz", 1, 16))
+            ]).then(([wasmUrl, dataUrl]) => {
+                container.hidden = false; // Unity container'ını (canvas ve yükleme çubuğu ebeveyni) göster
+                var buildUrl = "Build";
+                var loaderUrl = buildUrl + "/NewestBuild.loader.js";
+                var config = {
+                    dataUrl: dataUrl,
+                    frameworkUrl: buildUrl + "/NewestBuild.framework.js",
+                    codeUrl: wasmUrl,
+                    streamingAssetsUrl: "StreamingAssets",
+                    companyName: "Stupid Game",
+                    productName: "R.E.P.O",
+                    productVersion: "0.1"
+                };
+
+                if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                    var meta = document.createElement('meta');
+                    meta.name = 'viewport';
+                    meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+                    document.getElementsByTagName('head')[0].appendChild(meta);
+                    container.className = "unity-mobile";
+                    canvas.className = "unity-mobile";
+                     // Mobil için body stillerini sıfırla
+                    document.body.style.height = "100%";
+                    document.body.style.width = "100%";
+                    document.body.style.margin = "0";
+                    document.body.style.padding = "0";
+                    document.body.style.overflow = "hidden";
+                } else { // Desktop
+                    function resizeCanvas() {
+                        canvas.width = window.innerWidth;
+                        canvas.height = window.innerHeight;
+                        canvas.style.width = window.innerWidth + "px";
+                        canvas.style.height = window.innerHeight + "px";
+                    }
+                    resizeCanvas();
+                    window.addEventListener('resize', resizeCanvas);
+                }
+                
+                loadingBar.style.display = "block"; // Unity'ye özgü yükleme çubuğunu göster
+                
+                var script = document.createElement("script");
+                script.src = loaderUrl;
+                script.onload = () => {
+                    createUnityInstance(canvas, config, (progress) => {
+                        progressBarFull.style.width = 100 * progress + "%";
+                    }).then((unityInstance) => {
+                        loadingBar.style.display = "none";
+                        if (loadingTextDiv) { // Unity başarıyla yüklendiyse "YÜKLENİYOR..." metnini de gizle
+                            loadingTextDiv.style.display = 'none';
+                        }
+                    }).catch((message) => {
+                        console.error("Unity Instance Error:", message);
+                        alert("Unity başlatılırken bir hata oluştu: " + message);
+                        if (loadingTextDiv) {
+                             loadingTextDiv.innerHTML = "HATA OLUŞTU: " + message;
+                             loadingTextDiv.style.color = "red";
+                        }
+                        if(loadingBar) loadingBar.style.display = "none"; // Yükleme çubuğunu gizle
+                        // İsteğe bağlı: Başlatma butonunu tekrar göster
+                        // if (startPromptDiv) startPromptDiv.style.display = 'block';
+                        // document.body.style.display = 'flex'; // Ortalamayı geri getir
+                        // document.body.style.justifyContent = 'center';
+                        // document.body.style.alignItems = 'center';
+                        // document.body.style.textAlign = 'center';
+                    });
+                };
+                document.body.appendChild(script);
+
+            }).catch((error) => {
+                console.error("Error loading game files:", error);
+                if (loadingTextDiv) {
+                    loadingTextDiv.innerHTML = "OYUN DOSYALARI YÜKLENİRKEN HATA OLUŞTU: " + error;
+                    loadingTextDiv.style.color = "red";
+                }
+                 if (startPromptDiv) { // Hata durumunda başlatma ekranını geri getir
+                    startPromptDiv.style.display = 'block';
+                 }
+                 // Hata durumunda body stillerini geri yükle
+                document.body.style.display = 'flex';
+                document.body.style.justifyContent = 'center';
+                document.body.style.alignItems = 'center';
+                document.body.style.textAlign = 'center';
+            });
+        }
+
+        if (startButton) {
+            startButton.addEventListener('click', startGame);
+        }
+    </script>
+</body>
+</html>
