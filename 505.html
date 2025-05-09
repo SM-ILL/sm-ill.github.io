@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İsim Seçici - basaridunyam.site</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        h2 {
+            margin-top: 0;
+            color: #007bff;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            appearance: none;
+            background-color: #fff;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2C144.5L159.1%2C17.6c-3.3-3.3-8.5-3.3-11.8%2C0l-127%2C127.9c-3.3%2C3.3-3.3%2C8.5%2C0%2C11.8l115.4%2C115.4c3.3%2C3.3%2C8.5%2C3.3%2C11.8%2C0l128-127.8C290.3%2C153%2C290.3%2C147.8%2C287%2C144.5z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 10px top 50%;
+            background-size: 12px auto;
+            padding-right: 30px;
+            cursor: pointer;
+        }
+        select:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: 500;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:active {
+            background-color: #004085;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Bir İsim Seçin</h2>
+        <div class="form-group">
+            <label for="nameSelect">İsimler:</label>
+            <select id="nameSelect">
+                <option value="" disabled selected>Lütfen bir isim seçin</option>
+            </select>
+        </div>
+        <button id="goButton">Git</button>
+    </div>
+
+    <script>
+        const namesFromMapFile = "repo:bendy:buckshot-roulette:donottakethiscathome:hotline-miami:people-playground:thats-not-my-neighbor:ultrakill:balatro";
+        const nameArray = namesFromMapFile.split(":");
+        const nameSelect = document.getElementById('nameSelect');
+        const goButton = document.getElementById('goButton');
+        const baseURL = "http://basaridunyam.site/";
+
+        nameArray.forEach(name => {
+            if (name) {
+                const option = document.createElement('option');
+                option.value = name.trim();
+                option.textContent = name.trim().charAt(0).toUpperCase() + name.trim().slice(1);
+                nameSelect.appendChild(option);
+            }
+        });
+
+        goButton.addEventListener('click', () => {
+            const selectedName = nameSelect.value;
+            if (selectedName) {
+                const targetURL = baseURL + selectedName;
+                console.log("Yönlendiriliyor:", targetURL);
+                window.location.href = targetURL;
+            } else {
+                alert("Lütfen listeden bir isim seçin.");
+            }
+        });
+
+        nameSelect.addEventListener('change', function() {
+            const defaultOption = nameSelect.querySelector('option[disabled][selected]');
+            if (defaultOption) {
+                defaultOption.remove();
+            }
+        });
+    </script>
+
+</body>
+</html>
